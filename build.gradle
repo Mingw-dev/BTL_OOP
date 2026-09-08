@@ -1,0 +1,88 @@
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.3.4'
+    id 'io.spring.dependency-management' version '1.1.6'
+}
+
+group = 'com.example'
+version = '0.0.1-SNAPSHOT'
+description = 'ilms'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // Web & Validation
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
+
+    // Database & JPA
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // jwt
+    implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-impl:0.11.5'
+    runtimeOnly 'io.jsonwebtoken:jjwt-jackson:0.11.5'
+
+    implementation 'org.springframework.boot:spring-boot-starter-mail'
+    implementation 'dev.samstevens.totp:totp:1.7.1'
+    // Security
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'com.bucket4j:bucket4j-core:8.10.1'
+    // ModelMapper
+    implementation 'org.modelmapper:modelmapper:3.2.6'
+
+    // Flyway Migration cho MySQL
+    implementation 'org.flywaydb:flyway-core'
+    implementation 'org.flywaydb:flyway-mysql'
+
+    // Kafka
+    implementation 'org.springframework.kafka:spring-kafka'
+
+    // DevTools & Lombok
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+
+    // Testing
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.springframework.kafka:spring-kafka-test'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+}
+
+tasks.named('test') {
+    useJUnitPlatform()
+}
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
+
+tasks.register('createMigration') {
+    doLast {
+        def rawProps = gradle.startParameter.projectProperties
+        def migrationName = rawProps.get('name') ?: 'new_migration'
+
+        def timestamp = LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss"))
+        def fileName = "V${timestamp}__${migrationName}.sql"
+        def migrationDir = file("src/main/resources/db/migration")
+
+        if (!migrationDir.exists()) {
+            migrationDir.mkdirs()
+        }
+
+        def migrationFile = new File(migrationDir, fileName)
+        migrationFile.text = "-- Migration: ${migrationName}\n"
+        println "Created migration: ${migrationFile.path}"
+    }
+}
