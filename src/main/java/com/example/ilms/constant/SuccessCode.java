@@ -14,6 +14,9 @@ public enum SuccessCode {
     LOGOUT_SUCCESS(HttpStatus.OK, "Đăng xuất thành công"),
     REFRESH_TOKEN_SUCCESS(HttpStatus.OK, "Làm mới token thành công"),
     SEND_NEW_PASSWORD_SUCCESS(HttpStatus.OK, "Mật khẩu mới đã được gửi đến email của bạn"),
+    SEND_EMAIL_RESET_PASSWORD_SUCCESS(HttpStatus.OK, "Đường link đặt lại mật khẩu đã được gửi"),
+    VERIFY_TOKEN_RESET_PASSWORD_SUCCESS(HttpStatus.OK,"Token hợp lệ, bạn có thể đặt lại mật khẩu"),
+    CHANGED_PASSWORD_SUCCESS(HttpStatus.OK,"Đổi mật khẩu thành công, vui lòng đăng nhập lại"),
     // User Module
     GET_USER_SUCCESS(HttpStatus.OK, "Lấy thông tin người dùng thành công"),
     UPDATE_PROFILE_SUCCESS(HttpStatus.OK, "Cập nhật hồ sơ thành công"),

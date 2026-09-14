@@ -1,20 +1,22 @@
 package com.example.ilms.service;
 
-import com.example.ilms.dto.auth.AuthResult;
-import com.example.ilms.dto.auth.ForgotPasswordRequestDTO;
-import com.example.ilms.dto.auth.LoginRequestDTO;
-import com.example.ilms.dto.auth.RegisterRequestDTO;
+import com.example.ilms.dto.auth.*;
 import com.example.ilms.dto.user.UserResponseDTO;
 import com.example.ilms.entity.Role;
 import com.example.ilms.entity.User;
+import com.example.ilms.entity.VerificationToken;
 import com.example.ilms.exception.AppException;
 import com.example.ilms.exception.ErrorCode;
 import com.example.ilms.repository.RoleRepository;
 import com.example.ilms.repository.UserRepository;
+import com.example.ilms.repository.VerificationTokenRepository;
 import com.example.ilms.security.TokenProvider;
+import com.example.ilms.type.TokenType;
+import com.example.ilms.type.TokenStatus;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -25,6 +27,8 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -33,6 +37,7 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
+    private final VerificationTokenRepository verificationTokenRepository;
 
     private final AuthenticationManager authenticationManager;
     private final PasswordEncoder passwordEncoder;
@@ -40,6 +45,9 @@ public class AuthService {
     private final TokenProvider tokenProvider;
 
     private final EmailService emailService;
+
+    @Value("${app.frontend.reset-password-url:http://localhost:3000/reset-password}")
+    private String resetPasswordBaseUrl;
 
     public AuthResult register(RegisterRequestDTO dto) {
         if (userRepository.existsByEmail(dto.getEmail())) {
@@ -99,6 +107,94 @@ public class AuthService {
         }
 
         return buildAuthResult(user);
+    }
+    @Transactional
+    public void sendEmailForgotPassword(ForgotPasswordRequestDTO requestDTO) {
+        int time = 15;
+        String email = requestDTO.getEmail();
+
+        Optional<User> userOptional = userRepository.findByEmail(email);
+        if (userOptional.isEmpty()) {
+            return;
+        }
+
+        User user = userOptional.get();
+
+        verificationTokenRepository.revokeAllPendingTokens(email, TokenType.RESET_PASSWORD);
+
+        String token = UUID.randomUUID().toString();
+        VerificationToken verificationToken = VerificationToken.builder()
+                .user(user)
+                .token(token)
+                .email(user.getEmail())
+                .type(TokenType.RESET_PASSWORD)
+                .status(TokenStatus.PENDING)
+                .expiresAt(LocalDateTime.now().plusMinutes(time))
+                .build();
+
+        verificationTokenRepository.save(verificationToken);
+
+        String resetLink = resetPasswordBaseUrl + "?token=" + token;
+        emailService.sendForgotPasswordEmail(email, resetLink);
+    }
+
+    @Transactional(readOnly = true)
+    public void verifyResetToken(String token) {
+        VerificationToken verificationToken = verificationTokenRepository
+                .findByTokenAndTypeAndStatus(token, TokenType.RESET_PASSWORD, TokenStatus.PENDING)
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_OR_EXPIRED_TOKEN));
+
+        if (verificationToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            throw new AppException(ErrorCode.TOKEN_EXPIRED);
+        }
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordRequestDTO requestDTO) {
+        String token = requestDTO.getToken();
+        String newPassword = requestDTO.getNewPassword();
+
+        VerificationToken verificationToken = verificationTokenRepository
+                .findByTokenAndTypeAndStatus(token, TokenType.RESET_PASSWORD, TokenStatus.PENDING)
+                .orElseThrow(() -> new AppException(ErrorCode.INVALID_OR_EXPIRED_TOKEN));
+
+        if (verificationToken.getExpiresAt().isBefore(LocalDateTime.now())) {
+            verificationToken.setStatus(TokenStatus.EXPIRED);
+            verificationTokenRepository.save(verificationToken);
+            throw new AppException(ErrorCode.TOKEN_EXPIRED);
+        }
+
+        User user = userRepository.findByEmail(verificationToken.getEmail())
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        if (passwordEncoder.matches(newPassword, user.getPassword())) {
+            throw new AppException(ErrorCode.PASSWORD_CANNOT_BE_OLD_PASSWORD);
+        }
+
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        verificationToken.setStatus(TokenStatus.VERIFIED);
+        verificationTokenRepository.save(verificationToken);
+
+        emailService.sendPasswordChangedAlert(user.getEmail());
+    }
+
+    public void changePassword(ChangePasswordRequestDTO requestDTO) {
+        String oldPassword = requestDTO.getOldPassword();
+        String newPassword = requestDTO.getNewPassword();
+        UUID id = requestDTO.getId();
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));;
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            throw new AppException(ErrorCode.PASSWORD_INCORRECT);
+        }
+        if (oldPassword.equals(newPassword)) {
+            throw new AppException(ErrorCode.PASSWORD_CANNOT_BE_OLD_PASSWORD);
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+        emailService.sendPasswordChangedAlert(user.getEmail());
     }
 
     private AuthResult buildAuthResult(User user) {
