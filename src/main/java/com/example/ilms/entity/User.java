@@ -52,6 +52,9 @@ public class User implements UserDetails {
     @Column(nullable = false, length = 100)
     private String password;
 
+    @Column(name = "avatar_url")
+    private String avatarUrl;
+
     @Builder.Default
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 50)
@@ -64,6 +67,9 @@ public class User implements UserDetails {
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
+
+    @Column(name = "deleted_at")
+    private LocalDateTime deletedAt;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -95,7 +101,7 @@ public class User implements UserDetails {
 
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        return this.status != UserStatus.LOCKED;
     }
 
     @Override
