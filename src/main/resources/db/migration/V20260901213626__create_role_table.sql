@@ -12,6 +12,14 @@ CREATE TABLE roles (
 INSERT INTO roles (id, code, name, description)
 VALUES (
            0x00000000000000000000000000000001,
+           'ROLE_ADMIN',
+           'Admin Role',
+           'Admin role'
+       );
+
+INSERT INTO roles (id, code, name, description)
+VALUES (
+           0x00000000000000000000000000000002,
            'ROLE_USER',
            'User Role',
            'Default fallback role'
