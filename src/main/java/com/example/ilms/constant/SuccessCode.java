@@ -23,7 +23,19 @@ public enum SuccessCode {
 
     // Course & Class Module
     CLASS_CREATED(HttpStatus.CREATED, "Tạo lớp học thành công"),
-    ENROLL_CLASS_SUCCESS(HttpStatus.OK, "Tham gia lớp học thành công");
+    ENROLL_CLASS_SUCCESS(HttpStatus.OK, "Tham gia lớp học thành công"),
+
+    GET_COURSES_SUCCESS(HttpStatus.OK, "Lấy danh sách môn học thành công"),
+    GET_COURSE_SUCCESS(HttpStatus.OK, "Lấy thông tin môn học thành công"),
+    CREATE_COURSE_SUCCESS(HttpStatus.CREATED, "Tạo môn học thành công"),
+    UPDATE_COURSE_SUCCESS(HttpStatus.OK, "Cập nhật môn học thành công"),
+    DELETE_COURSE_SUCCESS(HttpStatus.OK, "Xóa (ẩn) môn học thành công"),
+    RESTORE_COURSE_SUCCESS(HttpStatus.OK, "Khôi phục môn học thành công"),
+    ASSIGN_COURSE_CLASS_SUCCESS(HttpStatus.CREATED, "Gán môn học vào lớp thành công"),
+    UPDATE_COURSE_CLASS_SUCCESS(HttpStatus.OK, "Cập nhật môn học trong lớp thành công"),
+    REMOVE_COURSE_CLASS_SUCCESS(HttpStatus.OK, "Hủy môn học khỏi lớp thành công"),
+    GET_COURSE_CLASSES_SUCCESS(HttpStatus.OK, "Lấy danh sách lớp học của môn thành công"),
+    GET_CLASS_COURSES_SUCCESS(HttpStatus.OK, "Lấy danh sách môn của lớp thành công");
 
     private final HttpStatus status;
     private final String message;
