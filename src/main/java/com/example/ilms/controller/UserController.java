@@ -1,9 +1,6 @@
 package com.example.ilms.controller;
 
-import com.example.ilms.constant.SuccessCode;
-import com.example.ilms.dto.response.ApiResponse;
 import com.example.ilms.dto.user.*;
-import com.example.ilms.entity.User;
 import com.example.ilms.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +17,7 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/user")
-    UserResponseDTO createUser(@RequestBody @Valid UserCreateRequest response) {
+    UserResponseDTO createUser(@RequestBody @Valid UserCreateRequestDTO response) {
 
         return userService.createUser(response);
     }

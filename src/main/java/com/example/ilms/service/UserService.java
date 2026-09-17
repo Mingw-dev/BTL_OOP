@@ -12,9 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.UUID;
-
 @Service
 public class UserService {
 
@@ -30,7 +27,7 @@ public class UserService {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public UserResponseDTO createUser(UserCreateRequest request) {
+    public UserResponseDTO createUser(UserCreateRequestDTO request) {
 
         if (userRepository.existsByEmail(request.getEmail())) {
             throw new AppException(ErrorCode.EMAIL_EXISTED);
@@ -40,10 +37,14 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-        Role defaultRole = roleRepository.findByCode("ROLE_USER")
-                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+//        Role defaultRole = roleRepository.findByCode("ROLE_USER")
+//                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+//
+//        user.setRole(defaultRole);
 
-        user.setRole(defaultRole);
+        if(!roleRepository.existsById(request.getRoleId())) {
+            throw new AppException(ErrorCode.ROLE_NOT_FOUND);
+        }
 
         User savedUser = userRepository.save(user);
 

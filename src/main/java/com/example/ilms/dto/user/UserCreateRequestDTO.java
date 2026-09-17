@@ -3,9 +3,11 @@ package com.example.ilms.dto.user;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Null;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
+
+import java.util.UUID;
 
 @Data
 @Builder
@@ -13,7 +15,7 @@ import lombok.experimental.FieldDefaults;
 @AllArgsConstructor
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserCreateRequest {
+public class UserCreateRequestDTO {
 
 
     @NotBlank(message = "Email không được để trống")
@@ -32,6 +34,7 @@ public class UserCreateRequest {
     @NotNull(message = "Tên đệm khong duoc de trong")
     String middleName;
 
-
+    @NotNull
+    UUID roleId;
 
 }
