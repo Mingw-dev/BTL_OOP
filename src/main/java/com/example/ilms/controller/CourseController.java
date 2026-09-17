@@ -25,6 +25,11 @@ public class CourseController {
             @RequestBody @Valid CourseCreateRequestDTO requestDTO,
             @AuthenticationPrincipal User currentUser) {
 
-        return ApiResponse.of(SuccessCode.CREATE_COURSE_SUCCESS, courseService.createCourse(requestDTO, currentUser));
+        requestDTO.setOwnerId(currentUser.getId());
+
+        return ApiResponse.of(
+                SuccessCode.CREATE_COURSE_SUCCESS,
+                courseService.createCourse(requestDTO)
+        );
     }
 }
