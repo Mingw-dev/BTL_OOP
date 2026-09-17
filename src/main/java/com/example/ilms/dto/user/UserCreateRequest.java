@@ -9,16 +9,12 @@ import lombok.experimental.FieldDefaults;
 
 @Data
 @Builder
-@NoArgsConstructor // Sinh constructor không có tham số
-
-@AllArgsConstructor //sinh constructor chứa tất cả các thuộc tính của class
+@NoArgsConstructor
+@AllArgsConstructor
 
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreateRequest {
 
-//    @NotBlank(message = "Họ và tên không được để trống")
-//    @Size(min = 2, max = 100, message = "Họ và tên phải từ 2 đến 100 ký tự")
-//    private String fullName;
 
     @NotBlank(message = "Email không được để trống")
     @Email(message = "Email không đúng định dạng")
