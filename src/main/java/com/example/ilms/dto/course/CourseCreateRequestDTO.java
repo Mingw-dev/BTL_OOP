@@ -1,8 +1,9 @@
 package com.example.ilms.dto.course;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.UUID;
+import jakarta.validation.constraints.NotBlank;
 
 @Getter
 @Setter
@@ -14,4 +15,6 @@ public class CourseCreateRequestDTO {
     private String description;
 
     private String visibility;
+
+    private UUID ownerId;
 }

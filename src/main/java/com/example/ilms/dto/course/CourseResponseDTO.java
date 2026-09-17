@@ -8,7 +8,7 @@ import java.util.UUID;
 @Getter
 @Setter
 public class CourseResponseDTO {
-    private Long id;
+    private UUID id;
     private String courseCode;
     private String name;
     private String description;
