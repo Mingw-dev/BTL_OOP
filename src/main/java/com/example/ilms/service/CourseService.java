@@ -32,6 +32,7 @@ public class CourseService {
 
     @Transactional
     public void createCourse(CourseCreateRequestDTO request, User owner) {
+
         Course course = modelMapper.map(request, Course.class);
 
         String randomCode = UUID.randomUUID()
