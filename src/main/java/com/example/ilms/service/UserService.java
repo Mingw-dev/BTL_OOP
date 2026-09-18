@@ -52,6 +52,11 @@ public class UserService {
     public UserResponseDTO getUser(UUID id) {
         User user =  userRepository.findById(id)
                 .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        UserResponseDTO responseDTO = modelMapper.map(user , UserResponseDTO.class);
+
+        if(responseDTO.getRoleName() == null) {
+            responseDTO.setRoleName(user.getRole().getName());
+        }
 
         return modelMapper.map(user , UserResponseDTO.class);
     }
