@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
 
 
 @RestController
@@ -22,4 +23,9 @@ public class UserController {
         return userService.createUser(response);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN' , 'TEACHER')")
+    @GetMapping("/{id}")
+    UserResponseDTO getUser(@PathVariable UUID id) {
+        return userService.getUser(id);
+    }
 }
