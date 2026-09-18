@@ -15,6 +15,4 @@ public class CourseCreateRequestDTO {
     private String description;
 
     private String visibility;
-
-    private UUID ownerId;
 }

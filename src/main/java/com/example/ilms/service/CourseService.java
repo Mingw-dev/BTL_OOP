@@ -5,9 +5,10 @@ import com.example.ilms.dto.course.CourseCreateRequestDTO;
 import com.example.ilms.dto.course.CourseResponseDTO;
 import com.example.ilms.entity.Course;
 import com.example.ilms.entity.User;
+import com.example.ilms.exception.AppException;
+import com.example.ilms.exception.ErrorCode;
 import com.example.ilms.repository.CourseRepository;
 import com.example.ilms.repository.UserRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
@@ -30,8 +31,7 @@ public class CourseService {
     private final ModelMapper modelMapper;
 
     @Transactional
-    public CourseResponseDTO createCourse(CourseCreateRequestDTO request) {
-
+    public void createCourse(CourseCreateRequestDTO request, User owner) {
         Course course = modelMapper.map(request, Course.class);
 
         String randomCode = UUID.randomUUID()
@@ -41,21 +41,9 @@ public class CourseService {
 
         course.setCourseCode(randomCode);
 
-        User owner = userRepository.findById(request.getOwnerId())
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy user"));
-
         course.setOwner(owner);
 
-        Course savedCourse = courseRepository.save(course);
-
-        CourseResponseDTO responseDTO =
-                modelMapper.map(savedCourse, CourseResponseDTO.class);
-
-        if (savedCourse.getOwner() != null) {
-            responseDTO.setOwnerId(savedCourse.getOwner().getId());
-        }
-
-        return responseDTO;
+        courseRepository.save(course);
     }
 
     public PageResponse<CourseResponseDTO> getCourses(
@@ -66,10 +54,8 @@ public class CourseService {
             int size,
             User currentUser) {
 
-        // isArchived=true -> chỉ lấy các môn đã xóa mềm (bất kể status truyền vào là gì)
         Boolean effectiveStatus = isArchived ? Boolean.FALSE : status;
 
-        // Admin xem tất cả (mọi visibility); User chỉ xem được các môn ở chế độ PUBLIC
         boolean isAdmin = currentUser.getRole() != null
                 && "ADMIN".equalsIgnoreCase(currentUser.getRole().getCode());
 
@@ -81,6 +67,10 @@ public class CourseService {
 
         Page<Course> coursePage = courseRepository.findCoursesWithFilters(
                 search, visibility, effectiveStatus, pageable);
+
+        if (search != null && !search.isBlank() && coursePage.isEmpty()) {
+            throw new AppException(ErrorCode.COURSE_NOT_FOUND);
+        }
 
         List<CourseResponseDTO> items = coursePage.getContent().stream()
                 .map(this::toResponseDTO)
@@ -95,6 +85,7 @@ public class CourseService {
                 .isLast(coursePage.isLast())
                 .build();
     }
+
 
     private CourseResponseDTO toResponseDTO(Course course) {
         CourseResponseDTO dto = modelMapper.map(course, CourseResponseDTO.class);
