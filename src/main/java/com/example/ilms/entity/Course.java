@@ -32,6 +32,7 @@ public class Course {
     @Column(name = "description", columnDefinition = "TEXT")
     private String description;
 
+    @Builder.Default
     @Column(name = "visibility", nullable = false, length = 50)
     private String visibility = "PUBLIC";
 
@@ -44,7 +45,7 @@ public class Course {
     private LocalDateTime updatedAt;
 
     @Column(name = "deleted_at")
-    private LocalDateTime deletedAt = null;
+    private LocalDateTime deletedAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")

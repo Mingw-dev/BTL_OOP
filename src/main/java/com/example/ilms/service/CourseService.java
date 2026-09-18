@@ -23,7 +23,7 @@ public class CourseService {
     private final ModelMapper modelMapper;
 
     @Transactional
-    public CourseResponseDTO createCourse(CourseCreateRequestDTO request) {
+    public void createCourse(CourseCreateRequestDTO request, User owner) {
 
         Course course = modelMapper.map(request, Course.class);
 
@@ -33,21 +33,7 @@ public class CourseService {
                 .toUpperCase();
 
         course.setCourseCode(randomCode);
-
-        User owner = userRepository.findById(request.getOwnerId())
-                .orElseThrow(() -> new EntityNotFoundException("Không tìm thấy user"));
-
         course.setOwner(owner);
-
-        Course savedCourse = courseRepository.save(course);
-
-        CourseResponseDTO responseDTO =
-                modelMapper.map(savedCourse, CourseResponseDTO.class);
-
-        if (savedCourse.getOwner() != null) {
-            responseDTO.setOwnerId(savedCourse.getOwner().getId());
-        }
-
-        return responseDTO;
+        courseRepository.save(course);
     }
 }
