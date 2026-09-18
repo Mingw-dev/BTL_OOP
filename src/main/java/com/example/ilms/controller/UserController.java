@@ -20,10 +20,6 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/user")
-//    UserResponseDTO createUser(@RequestBody @Valid UserCreateRequestDTO response) {
-//
-//        return userService.createUser(response);
-//    }
 
     ApiResponse<UserCreateRequestDTO> createUser (@RequestBody @Valid UserCreateRequestDTO response) {
         userService.createUser(response);
