@@ -24,12 +24,10 @@ public class CourseController {
     public ApiResponse<CourseResponseDTO> createCourse(
             @RequestBody @Valid CourseCreateRequestDTO requestDTO,
             @AuthenticationPrincipal User currentUser) {
-
-        requestDTO.setOwnerId(currentUser.getId());
-
+        courseService.createCourse(requestDTO, currentUser);
         return ApiResponse.of(
                 SuccessCode.CREATE_COURSE_SUCCESS,
-                courseService.createCourse(requestDTO)
+                null
         );
     }
 }
