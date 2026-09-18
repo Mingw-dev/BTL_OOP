@@ -1,5 +1,7 @@
 package com.example.ilms.controller;
 
+import com.example.ilms.constant.SuccessCode;
+import com.example.ilms.dto.response.ApiResponse;
 import com.example.ilms.dto.user.*;
 import com.example.ilms.service.UserService;
 import jakarta.validation.Valid;
@@ -18,12 +20,21 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/user")
-    UserResponseDTO createUser(@RequestBody @Valid UserCreateRequestDTO response) {
+//    UserResponseDTO createUser(@RequestBody @Valid UserCreateRequestDTO response) {
+//
+//        return userService.createUser(response);
+//    }
 
-        return userService.createUser(response);
+    ApiResponse<UserCreateRequestDTO> createUser (@RequestBody @Valid UserCreateRequestDTO response) {
+        userService.createUser(response);
+
+        return ApiResponse.of(
+                SuccessCode.CREATE_USER_SUCCESS,
+                null
+        );
     }
 
-    @PreAuthorize("hasAnyRole('ADMIN' , 'TEACHER')")
+    @PreAuthorize("hasRole('ADMIN')")
     @GetMapping("/{id}")
     UserResponseDTO getUser(@PathVariable UUID id) {
         return userService.getUser(id);
