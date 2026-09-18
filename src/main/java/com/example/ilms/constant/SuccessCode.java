@@ -20,7 +20,7 @@ public enum SuccessCode {
     // User Module
     GET_USER_SUCCESS(HttpStatus.OK, "Lấy thông tin người dùng thành công"),
     UPDATE_PROFILE_SUCCESS(HttpStatus.OK, "Cập nhật hồ sơ thành công"),
-
+    CREATE_USER_SUCCESS(HttpStatus.OK, "Tạo người dùng mới thành công"),
     // Course & Class Module
     CLASS_CREATED(HttpStatus.CREATED, "Tạo lớp học thành công"),
     ENROLL_CLASS_SUCCESS(HttpStatus.OK, "Tham gia lớp học thành công");
