@@ -17,6 +17,7 @@ public interface CourseRepository extends JpaRepository<Course, UUID> {
             "(:status IS NULL OR " +
             "(:status = true AND c.deletedAt IS NULL) OR " +
             "(:status = false AND c.deletedAt IS NOT NULL))")
+
     Page<Course> findCoursesWithFilters(
             @Param("search") String search,
             @Param("visibility") String visibility,
