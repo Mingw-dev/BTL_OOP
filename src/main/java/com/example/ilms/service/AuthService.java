@@ -14,7 +14,6 @@ import com.example.ilms.security.TokenProvider;
 import com.example.ilms.type.TokenType;
 import com.example.ilms.type.TokenStatus;
 import lombok.RequiredArgsConstructor;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
@@ -185,7 +184,7 @@ public class AuthService {
         String newPassword = requestDTO.getNewPassword();
         UUID id = requestDTO.getId();
         User user = userRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));;
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
         if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
             throw new AppException(ErrorCode.PASSWORD_INCORRECT);
         }
