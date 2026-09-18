@@ -26,15 +26,10 @@ public class ClassController {
     @PostMapping
     public ApiResponse<ClassResponseDTO> createClass(
             @RequestBody @Valid ClassCreateRequestDTO request,
-            Principal principal){
+            @AuthenticationPrincipal User currentUser){
 
-        String email = principal.getName();
 
-        User currentUser = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        UUID ownerId = currentUser.getId();
-        ClassResponseDTO createdClass = classService.createClass(request, ownerId );
+        ClassResponseDTO createdClass = classService.createClass(request,currentUser);
         return ApiResponse.of(SuccessCode.CLASS_CREATED, createdClass);
 
     }

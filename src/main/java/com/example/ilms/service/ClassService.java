@@ -35,16 +35,13 @@ public class ClassService {
     }
 
     @Transactional
-    public ClassResponseDTO createClass(ClassCreateRequestDTO request, UUID currentUserId) {
-
-        User currentUser = userRepository.findById(currentUserId)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    public ClassResponseDTO createClass(ClassCreateRequestDTO request,User currentUser) {
 
 
         // Tạo thông tin lớp học
         ClassEntity newClass = modelMapper.map(request, ClassEntity.class);
-        newClass.setClassCode(generateRandomClassCode());
         newClass.setOwner(currentUser);
+        newClass.setClassCode(generateRandomClassCode());
         // Database nhận Entity và cấp phát ID
         newClass = classRepository.save(newClass);
 
@@ -62,6 +59,11 @@ public class ClassService {
     }
 
     private String generateRandomClassCode() {
-        return UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        String code;
+        do {
+            code = UUID.randomUUID().toString().substring(0, 8).toUpperCase();
+        } while (classRepository.existsByClassCode(code)); // Hỏi DB xem mã này xài chưa
+
+        return code;
     }
 }

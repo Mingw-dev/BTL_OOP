@@ -27,6 +27,7 @@ public class ClassEntity {
     @Column(name = "class_code", unique = true)
     private String classCode;
 
+    @Column(name = "visibility")
     private String visibility;
 
     @Column(name = "thumbnail_url")
@@ -66,4 +67,5 @@ public class ClassEntity {
 
     @Column(name = "deleted_at")
     private LocalDateTime deletedAt = null;
+
 }
