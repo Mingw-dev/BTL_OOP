@@ -1,6 +1,7 @@
 package com.example.ilms.controller;
 
 import com.example.ilms.constant.SuccessCode;
+import com.example.ilms.dto.common.PageResponse;
 import com.example.ilms.dto.course.CourseCreateRequestDTO;
 import com.example.ilms.dto.course.CourseResponseDTO;
 import com.example.ilms.dto.response.ApiResponse;
@@ -29,5 +30,20 @@ public class CourseController {
                 SuccessCode.CREATE_COURSE_SUCCESS,
                 null
         );
+    }
+
+    @GetMapping
+    public ApiResponse<PageResponse<CourseResponseDTO>> getCourses(
+            @RequestParam(required = false) String search,
+            @RequestParam(required = false) Boolean status,
+            @RequestParam(required = false, defaultValue = "false") boolean isArchived,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal User currentUser) {
+
+        PageResponse<CourseResponseDTO> result = courseService.getCourses(
+                search, status, isArchived, page, size, currentUser);
+
+        return ApiResponse.of(SuccessCode.GET_COURSES_SUCCESS, result);
     }
 }
