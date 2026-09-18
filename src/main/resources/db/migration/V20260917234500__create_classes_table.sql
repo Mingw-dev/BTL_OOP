@@ -10,7 +10,8 @@ CREATE TABLE classes (
                          require_approval BOOLEAN DEFAULT TRUE,
                          is_code_active BOOLEAN DEFAULT TRUE,
                          owner_id BINARY(16) NOT NULL,
-                         status VARCHAR(20) DEFAULT 'ACTIVE',
+                         start_at TIMESTAMP NULL,
+                         end_at TIMESTAMP NULL,
                          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
                          deleted_at TIMESTAMP NULL,
@@ -18,7 +19,7 @@ CREATE TABLE classes (
                          CONSTRAINT fk_classes_owner FOREIGN KEY (owner_id) REFERENCES users(id) ON DELETE RESTRICT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE TABLE class_member (
+CREATE TABLE class_members (
                               id BINARY(16) NOT NULL,
                               class_id BINARY(16) NOT NULL,
                               user_id BINARY(16) NOT NULL,
