@@ -26,7 +26,7 @@ VALUES (
            'Admin',
            'Admin',
            'admin@gmail.com',
-           '$2a$10$Dow1hP5vA6z4lq.N1bZ7yeTfv9.uKSmxUjB3J9V6iU6J4Z7F9N0C.',
+           '$2a$10$7Z8Kq5z0jL6.s8jPjG/lcu0h6T5fN6m0v7a8uQ8k1m0p8l2rG8k2',
            'ACTIVE'
        );
     # admin123 password
