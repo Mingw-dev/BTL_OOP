@@ -1,7 +1,5 @@
 package com.example.ilms.controller;
 
-import com.example.ilms.constant.SuccessCode;
-import com.example.ilms.dto.response.ApiResponse;
 import com.example.ilms.dto.user.*;
 import com.example.ilms.service.UserService;
 import jakarta.validation.Valid;
@@ -9,7 +7,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
 
 
 @RestController
@@ -20,19 +17,9 @@ public class UserController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @PostMapping("/user")
+    UserResponseDTO createUser(@RequestBody @Valid UserCreateRequestDTO response) {
 
-    ApiResponse<UserCreateRequestDTO> createUser (@RequestBody @Valid UserCreateRequestDTO response) {
-        userService.createUser(response);
-
-        return ApiResponse.of(
-                SuccessCode.CREATE_USER_SUCCESS,
-                null
-        );
+        return userService.createUser(response);
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
-    @GetMapping("/{id}")
-    UserResponseDTO getUser(@PathVariable UUID id) {
-        return userService.getUser(id);
-    }
 }
