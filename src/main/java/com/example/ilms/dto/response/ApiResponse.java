@@ -3,12 +3,11 @@ package com.example.ilms.dto.response;
 import com.example.ilms.constant.SuccessCode;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class ApiResponse<T> {

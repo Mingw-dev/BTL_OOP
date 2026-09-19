@@ -1,6 +1,5 @@
 package com.example.ilms.dto.user;
 
-import com.example.ilms.entity.Role;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +13,6 @@ import java.util.UUID;
 @AllArgsConstructor
 public class UserResponseDTO {
     private UUID id;
-    private UUID roleId;
     private String email;
     private String firstName;
     private String middleName;
