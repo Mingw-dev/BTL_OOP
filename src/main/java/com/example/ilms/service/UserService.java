@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.UUID;
-
 @Service
 public class UserService {
 
@@ -39,7 +37,10 @@ public class UserService {
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
 
-
+//        Role defaultRole = roleRepository.findByCode("ROLE_USER")
+//                .orElseThrow(() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+//
+//        user.setRole(defaultRole);
 
         if(!roleRepository.existsById(request.getRoleId())) {
             throw new AppException(ErrorCode.ROLE_NOT_FOUND);
@@ -48,17 +49,6 @@ public class UserService {
         User savedUser = userRepository.save(user);
 
         return modelMapper.map(savedUser , UserResponseDTO.class);
-    }
-    public UserResponseDTO getUser(UUID id) {
-        User user =  userRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        UserResponseDTO responseDTO = modelMapper.map(user , UserResponseDTO.class);
-
-        if(responseDTO.getRoleName() == null) {
-            responseDTO.setRoleName(user.getRole().getName());
-        }
-
-        return modelMapper.map(user , UserResponseDTO.class);
     }
 
 
