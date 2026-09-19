@@ -11,10 +11,6 @@ import com.example.ilms.repository.CourseRepository;
 import com.example.ilms.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -62,28 +58,33 @@ public class CourseService {
 
         String visibility = isAdmin ? null : "PUBLIC";
 
-        Sort sort = Sort.by(Sort.Direction.DESC, "createdAt")
-                .and(Sort.by(Sort.Direction.ASC, "name"));
-        Pageable pageable = PageRequest.of(page, size, sort);
+        int limit = size;
+        int offset = page * size;
 
-        Page<Course> coursePage = courseRepository.findCoursesWithFilters(
-                search, visibility, effectiveStatus, pageable);
+        List<Course> courses = courseRepository.findCoursesWithFilters(
+                search, visibility, effectiveStatus, limit, offset);
 
-        if (search != null && !search.isBlank() && coursePage.isEmpty()) {
+        long totalElements = courseRepository.countCoursesWithFilters(
+                search, visibility, effectiveStatus);
+
+        if (search != null && !search.isBlank() && courses.isEmpty()) {
             throw new AppException(ErrorCode.COURSE_NOT_FOUND);
         }
 
-        List<CourseResponseDTO> items = coursePage.getContent().stream()
+        int totalPages = (int) Math.ceil((double) totalElements / size);
+        boolean isLast = (page + 1) >= totalPages;
+
+        List<CourseResponseDTO> items = courses.stream()
                 .map(this::toResponseDTO)
                 .collect(Collectors.toList());
 
         return PageResponse.<CourseResponseDTO>builder()
                 .items(items)
-                .pageNumber(coursePage.getNumber())
-                .pageSize(coursePage.getSize())
-                .totalElements(coursePage.getTotalElements())
-                .totalPages(coursePage.getTotalPages())
-                .isLast(coursePage.isLast())
+                .pageNumber(page)
+                .pageSize(size)
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .isLast(isLast)
                 .build();
     }
 
