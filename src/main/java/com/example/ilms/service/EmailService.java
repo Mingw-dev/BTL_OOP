@@ -2,6 +2,7 @@ package com.example.ilms.service;
 
 import com.example.ilms.mail.dto.MailRequest;
 import com.example.ilms.mail.template.ForgotPasswordTemplate;
+import com.example.ilms.mail.template.InvitationTemplate;
 import com.example.ilms.mail.template.PasswordChangedAlert;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
@@ -12,6 +13,7 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
 
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
@@ -71,6 +73,26 @@ public class EmailService {
         MailRequest request = MailRequest.builder()
                 .to(toEmail)
                 .subject("[ILMS] Cảnh báo bảo mật: Mật khẩu đã được thay đổi")
+                .body(htmlContent)
+                .build();
+
+        sendMail(request);
+    }
+
+    @Async
+    public void sendClassInvitationEmail(
+            String toEmail,
+            String className,
+            String invitationUrl
+    ) {
+        String htmlContent = InvitationTemplate.buildTemplate(
+                className,
+                invitationUrl
+        );
+
+        MailRequest request = MailRequest.builder()
+                .to(toEmail)
+                .subject("[ILMS] Lời mời tham gia lớp học")
                 .body(htmlContent)
                 .build();
 
