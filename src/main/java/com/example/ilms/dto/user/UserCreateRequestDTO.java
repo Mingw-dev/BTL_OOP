@@ -25,13 +25,13 @@ public class UserCreateRequestDTO {
     @NotNull(message = "Mật khẩu không được để trống")
     String password;
 
-    @NotNull(message = "First name khong duoc de trong")
+    @NotNull(message = "Họ không được để trống")
     String firstName;
 
-    @NotNull(message = "Tên không duoc de trong")
+    @NotNull(message = "Tên không được để trống")
     String lastName;
 
-    @NotNull(message = "Tên đệm khong duoc de trong")
+    @NotNull(message = "Tên đệm không được để trống")
     String middleName;
 
     @NotNull

@@ -81,6 +81,17 @@ public class UserService {
         User savedUser = userRepository.save(user);
         return modelMapper.map(savedUser, UserResponseDTO.class);
     }
+    public UserResponseDTO upDateRole(UUID id, UserUpdateRoleRequest request) {
+        User user = userRepository.findById(id).orElseThrow
+                (() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
+        Role role = roleRepository.findByCode(request.getRole()).orElseThrow
+                (() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+        user.setRole(role);
+
+        User savedUser = userRepository.save(user);
+
+        return modelMapper.map(savedUser, UserResponseDTO.class);
+    }
 
 }
