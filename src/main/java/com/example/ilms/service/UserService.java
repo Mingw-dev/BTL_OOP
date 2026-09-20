@@ -61,17 +61,17 @@ public class UserService {
         return modelMapper.map(user , UserResponseDTO.class);
     }
 
-    public UserResponseDTO updateUser (UUID id, UserUpdateRequestDTO updateRequest) {
-        User user = userRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+    public UserResponseDTO upDateRole(UUID id, UserUpdateRoleRequest request) {
+        User user = userRepository.findById(id).orElseThrow
+                (() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
-        user.setLastName(updateRequest.getLastName());
-        user.setMiddleName(updateRequest.getMiddleName());
-        user.setFirstName(updateRequest.getFirstName());
-        user.setEmail(updateRequest.getEmail());
+        Role role = roleRepository.findByCode(request.getRole()).orElseThrow
+                (() -> new AppException(ErrorCode.ROLE_NOT_FOUND));
+        user.setRole(role);
+
         User savedUser = userRepository.save(user);
 
-        return modelMapper.map(savedUser , UserResponseDTO.class);
+        return modelMapper.map(savedUser, UserResponseDTO.class);
     }
 
 
