@@ -29,4 +29,12 @@ VALUES (
            '$2a$10$7Z8Kq5z0jL6.s8jPjG/lcu0h6T5fN6m0v7a8uQ8k1m0p8l2rG8k2',
            'ACTIVE'
        );
-# admin123 password
+    # admin123 password
+
+--       {
+--   "email": "admin2@gmail.com",
+--   "password": "admin1234",
+--   "firstName": "ad",
+--   "middleName": "",
+--   "lastName": "doe"
+-- }
