@@ -25,6 +25,7 @@ public class CourseController {
     public ApiResponse<CourseResponseDTO> createCourse(
             @RequestBody @Valid CourseCreateRequestDTO requestDTO,
             @AuthenticationPrincipal User currentUser) {
+
         courseService.createCourse(requestDTO, currentUser);
         return ApiResponse.of(
                 SuccessCode.CREATE_COURSE_SUCCESS,
