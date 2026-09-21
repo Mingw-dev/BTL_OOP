@@ -43,5 +43,10 @@ public class UserController {
     public UserResponseDTO updateUserRole(@PathVariable UUID id, @RequestBody UserUpdateRoleRequest request) {
         return userService.upDateRole(id, request);
     }
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/{id}")
+    public UserResponseDTO updateUser(@PathVariable UUID id, @RequestBody UserUpdateRequestDTO updateRequest) {
+        return userService.updateUser(id, updateRequest);
+    }
 
 }

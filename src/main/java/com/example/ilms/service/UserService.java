@@ -61,6 +61,26 @@ public class UserService {
         return modelMapper.map(user , UserResponseDTO.class);
     }
 
+    public UserResponseDTO updateUser(
+            UUID id,
+            UserUpdateRequestDTO updateRequest) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+        if (updateRequest.getLastName() != null) {
+            user.setLastName(updateRequest.getLastName());
+        }
+        if (updateRequest.getMiddleName() != null) {
+            user.setMiddleName(updateRequest.getMiddleName());
+        }
+        if (updateRequest.getFirstName() != null) {
+            user.setFirstName(updateRequest.getFirstName());
+        }
+        if (updateRequest.getEmail() != null) {
+            user.setEmail(updateRequest.getEmail());
+        }
+        User savedUser = userRepository.save(user);
+        return modelMapper.map(savedUser, UserResponseDTO.class);
+    }
     public UserResponseDTO upDateRole(UUID id, UserUpdateRoleRequest request) {
         User user = userRepository.findById(id).orElseThrow
                 (() -> new AppException(ErrorCode.USER_NOT_FOUND));
@@ -73,6 +93,5 @@ public class UserService {
 
         return modelMapper.map(savedUser, UserResponseDTO.class);
     }
-
 
 }
