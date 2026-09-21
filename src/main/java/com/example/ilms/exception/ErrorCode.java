@@ -18,7 +18,10 @@ public enum ErrorCode {
     USER_DISABLED(HttpStatus.FORBIDDEN, "Tài khoản của bạn đã bị khóa"),
     //    TOKEN
     INVALID_OR_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "Mã không hợp lệ hoặc đã hết hạn"),
-    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Mã đã hết hạn");
+    TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Mã đã hết hạn"),
+
+    // Course
+    COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy môn học");
 
     private final HttpStatus status;
     private final String message;
