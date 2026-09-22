@@ -24,6 +24,7 @@ public enum SuccessCode {
     // Course & Class Module
     CLASS_CREATED(HttpStatus.CREATED, "Tạo lớp học thành công"),
     ENROLL_CLASS_SUCCESS(HttpStatus.OK, "Tham gia lớp học thành công"),
+    GET_CLASSES_SUCCESS(HttpStatus.OK, "Lấy danh sách lớp học thành công"),
 
     GET_COURSES_SUCCESS(HttpStatus.OK, "Lấy danh sách môn học thành công"),
     GET_COURSE_SUCCESS(HttpStatus.OK, "Lấy thông tin môn học thành công"),
