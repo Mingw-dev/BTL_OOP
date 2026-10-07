@@ -2,6 +2,7 @@ package com.example.ilms.service;
 
 import com.example.ilms.dto.classDTO.ClassCreateRequestDTO;
 import com.example.ilms.dto.classDTO.ClassResponseDTO;
+import com.example.ilms.dto.common.PageResponse;
 import com.example.ilms.entity.ClassEntity;
 import com.example.ilms.entity.ClassMember;
 import com.example.ilms.entity.User;
@@ -11,10 +12,16 @@ import com.example.ilms.repository.ClassMemberRepository;
 import com.example.ilms.repository.ClassRepository;
 import com.example.ilms.repository.UserRepository;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Pageable;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 public class ClassService {
@@ -65,5 +72,58 @@ public class ClassService {
         } while (classRepository.existsByClassCode(code)); // Hỏi DB xem mã này xài chưa
 
         return code;
+    }
+    public PageResponse<ClassResponseDTO> getClasses(String search, String visibility, int page, int size, User currentUser) {
+        // Khởi tạo đối tượng phân trang, sắp xếp theo thời gian (nếu Entity có trường createdAt hoặc startAt)
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        // Gọi hàm HQL từ Repository để lọc dữ liệu
+        Page<ClassEntity> classPage = classRepository.findClassesWithFilter(search, visibility, pageable);
+
+        List<ClassResponseDTO> content = classPage.getContent().stream()
+                .map(entity -> {
+                    ClassResponseDTO dto = modelMapper.map(entity, ClassResponseDTO.class);
+                    if (entity.getOwner() != null) {
+                        dto.setOwnerId(entity.getOwner().getId());
+                    }
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return PageResponse.<ClassResponseDTO>builder()
+                .items(content)
+                .pageNumber(classPage.getNumber())
+                .pageSize(classPage.getSize())
+                .totalElements(classPage.getTotalElements())
+                .totalPages(classPage.getTotalPages())
+                .isLast(classPage.isLast())
+                .build();
+    }
+
+    public ClassResponseDTO getClassById(UUID classId, User currentUser) {
+        ClassEntity classEntity = classRepository.findById(classId)
+                .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
+
+        ClassResponseDTO response = modelMapper.map(classEntity, ClassResponseDTO.class);
+        if (classEntity.getOwner() != null) {
+            response.setOwnerId(classEntity.getOwner().getId());
+        }
+        return response;
+    }
+
+    @Transactional
+    public void updateClassStatus(UUID classId, boolean isClosed, User currentUser) {
+        ClassEntity classEntity = classRepository.findById(classId)
+                .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
+
+        // Kiểm tra quyền: Chỉ giảng viên tạo lớp mới được thao tác
+        if (!classEntity.getOwner().getId().equals(currentUser.getId())) {
+            // Thay bằng ErrorCode tương ứng trong file ErrorCode của bạn (VD: UNAUTHORIZED_ACCESS)
+            throw new AppException(ErrorCode.CLASS_ACCESS_DENIED);
+        }
+
+        // Đảm bảo ClassEntity của bạn có trường isClosed và hàm setClosed()
+        classEntity.setIsCodeActive(isClosed);
+        classRepository.save(classEntity);
     }
 }
