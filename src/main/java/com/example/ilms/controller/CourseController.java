@@ -13,6 +13,8 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/api/v1/courses")
 @RequiredArgsConstructor
@@ -46,5 +48,16 @@ public class CourseController {
                 search, status, isArchived, page, size, currentUser);
 
         return ApiResponse.of(SuccessCode.GET_COURSES_SUCCESS, result);
+    }
+
+    @GetMapping("/{id}")
+    public ApiResponse<CourseResponseDTO> getCourseById(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal User currentUser) {
+
+        return ApiResponse.of(
+                SuccessCode.GET_COURSE_SUCCESS,
+                courseService.getCourseById(id, currentUser)
+        );
     }
 }

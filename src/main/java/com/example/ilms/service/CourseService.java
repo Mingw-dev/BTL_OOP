@@ -88,6 +88,22 @@ public class CourseService {
                 .build();
     }
 
+    public CourseResponseDTO getCourseById(UUID id, User currentUser) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        boolean isAdmin = currentUser.getRole() != null
+                && "ADMIN".equalsIgnoreCase(currentUser.getRole().getCode());
+
+        // User thường: không được xem môn PRIVATE, cũng không được xem môn đã xóa mềm
+        if (!isAdmin) {
+            if (!"PUBLIC".equalsIgnoreCase(course.getVisibility()) || course.getDeletedAt() != null) {
+                throw new AppException(ErrorCode.COURSE_NOT_FOUND);
+            }
+        }
+
+        return toResponseDTO(course);
+    }
 
     private CourseResponseDTO toResponseDTO(Course course) {
         CourseResponseDTO dto = modelMapper.map(course, CourseResponseDTO.class);
