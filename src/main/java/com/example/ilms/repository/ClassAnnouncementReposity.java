@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.UUID;
 @Repository
-public interface classAnnouncementReposity extends JpaRepository<ClassAnnouncement, UUID> {
+public interface ClassAnnouncementReposity extends JpaRepository<ClassAnnouncement, UUID> {
     // Lấy thông báo theo lớp học
     Page<ClassAnnouncement> findByClassEntityId(UUID authorId, Pageable pageable);
 

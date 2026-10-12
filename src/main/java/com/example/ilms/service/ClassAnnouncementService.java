@@ -8,7 +8,7 @@ import com.example.ilms.entity.ClassEntity;
 import com.example.ilms.entity.User;
 import com.example.ilms.exception.AppException;
 import com.example.ilms.exception.ErrorCode;
-import com.example.ilms.repository.classAnnouncementReposity;
+import com.example.ilms.repository.ClassAnnouncementReposity;
 import com.example.ilms.repository.ClassRepository;
 import io.swagger.v3.oas.annotations.servers.Server;
 import lombok.RequiredArgsConstructor;
@@ -24,12 +24,12 @@ import java.util.stream.Collectors;
 
 @Server
 @RequiredArgsConstructor
-public class classAnnouncementService {
-    private final classAnnouncementReposity classAnnouncementReposity;
+public class ClassAnnouncementService {
+    private final ClassAnnouncementReposity classAnnouncementReposity;
     private final ModelMapper modelMapper;
     private final ClassRepository classRepository;
 
-    public void createAnnouncement(AnnouncementCreateRequestDTO requestDTO, UUID classId, User currentUser) throws AppException {
+    public void createAnnouncement(AnnouncementCreateRequestDTO requestDTO, UUID classId, User currentUser) {
         ClassEntity classEntity = classRepository.findById(classId).orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
         ClassAnnouncement classAnnouncement = ClassAnnouncement.builder()
                 .classEntity(classEntity)
