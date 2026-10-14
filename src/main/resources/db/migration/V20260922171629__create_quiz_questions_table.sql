@@ -3,6 +3,7 @@
 CREATE TABLE quiz_questions (
                                 id BINARY(16) NOT NULL,
                                 quiz_id BINARY(16) NOT NULL,                -- Thuộc bài quiz nào
+                                bank_question_id BINARY(16) NULL,
                                 question_text TEXT NOT NULL,                -- Nội dung câu hỏi (chữ hoặc HTML)
                                 question_type VARCHAR(30) DEFAULT 'SINGLE_CHOICE', -- SINGLE_CHOICE, MULTIPLE_CHOICE, TRUE_FALSE
                                 score DECIMAL(5, 2) NOT NULL DEFAULT 1.00,  -- Điểm số của câu hỏi
@@ -15,8 +16,12 @@ CREATE TABLE quiz_questions (
                                 CONSTRAINT fk_quiz_questions_quiz FOREIGN KEY (quiz_id)
                                     REFERENCES quizzes (id)
                                     ON DELETE CASCADE
+                                    ON UPDATE CASCADE,
+                                CONSTRAINT fk_quiz_questions_bank FOREIGN KEY (bank_question_id)
+                                    REFERENCES questions (id)
+                                    ON DELETE SET NULL  -- Nếu xóa câu gốc ở ngân hàng, chỉ set NULL ở đây, không xóa câu trong đề
                                     ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 CREATE INDEX idx_quiz_questions_quiz ON quiz_questions (quiz_id, order_index ASC);
-
+CREATE INDEX idx_quiz_questions_bank ON quiz_questions (bank_question_id);

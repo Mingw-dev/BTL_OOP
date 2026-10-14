@@ -25,7 +25,7 @@ CREATE TABLE class_members (
                               user_id BINARY(16) NOT NULL,
                               role VARCHAR(50) NOT NULL,
                               status VARCHAR(20) DEFAULT 'ACTIVE',
-                              joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                              joined_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP(6),
                               CONSTRAINT pk_class_member PRIMARY KEY (id),
                               CONSTRAINT fk_cm_class FOREIGN KEY (class_id) REFERENCES classes(id) ON DELETE CASCADE,
                               CONSTRAINT fk_cm_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,

@@ -1,7 +1,7 @@
 -- Migration: create_user_table
 CREATE TABLE users (
                        id BINARY(16) NOT NULL,
-                       role_id BINARY(16) NOT NULL DEFAULT (0x00000000000000000000000000000002),
+                       role_id BINARY(16) NOT NULL,
                        first_name VARCHAR(50) NOT NULL,
                        middle_name VARCHAR(50) NULL,
                        last_name VARCHAR(50) NOT NULL,
@@ -18,23 +18,10 @@ CREATE TABLE users (
                        INDEX idx_users_status (status)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-INSERT INTO users (id, role_id, first_name, middle_name, last_name, email, password, status)
-VALUES (
-           0x00000000000000000000000000000001,
-           0x00000000000000000000000000000001,
-           'Admin',
-           'Admin',
-           'Admin',
-           'admin@gmail.com',
-           '$2a$10$7Z8Kq5z0jL6.s8jPjG/lcu0h6T5fN6m0v7a8uQ8k1m0p8l2rG8k2',
-           'ACTIVE'
-       );
-    # admin123 password
-
---       {
---   "email": "admin2@gmail.com",
---   "password": "admin1234",
---   "firstName": "ad",
---   "middleName": "",
---   "lastName": "doe"
--- }
+INSERT INTO `users` (`id`, `role_id`, `first_name`, `middle_name`, `last_name`, `email`, `password`, `status`, `created_at`, `updated_at`) VALUES
+-- Admin
+(UNHEX('AAAAAAAAAAAAAAAABBBBBBBBBBBBBBBB'), 0x00000000000000000000000000000001, 'Trần', 'Văn', 'Hoàng', 'admin@ptit.edu.vn', '$2a$10$Dk4tP.f.Xy.hKj4qR/Ycye2k.0p8Zf2VqA/y0qM1r.ZfW.2fL3a2C', 'ACTIVE', NOW(), NOW()),
+-- User
+(UNHEX('CCCCCCCCCCCCCCCCDDDDDDDDDDDDDDDD'), 0x00000000000000000000000000000002, 'Trần', 'Thị', 'Hương', 'huongtt@ptit.edu.vn', '$2a$10$Dk4tP.f.Xy.hKj4qR/Ycye2k.0p8Zf2VqA/y0qM1r.ZfW.2fL3a2C', 'ACTIVE', NOW(), NOW()),
+(UNHEX('12345678901234567890123456789012'), 0x00000000000000000000000000000002, 'Nguyễn', 'Hoàng', 'Nam', 'namnh.student@gmail.com', '$2a$10$Dk4tP.f.Xy.hKj4qR/Ycye2k.0p8Zf2VqA/y0qM1r.ZfW.2fL3a2C', 'ACTIVE', NOW(), NOW()),
+(UNHEX('09876543210987654321098765432109'), 0x00000000000000000000000000000002, 'Phạm', 'Thùy', 'Linh', 'linhpt.student@gmail.com', '$2a$10$Dk4tP.f.Xy.hKj4qR/Ycye2k.0p8Zf2VqA/y0qM1r.ZfW.2fL3a2C', 'ACTIVE', NOW(), NOW());
