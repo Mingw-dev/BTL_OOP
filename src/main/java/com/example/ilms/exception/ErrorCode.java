@@ -37,10 +37,17 @@ public enum ErrorCode {
     //    TOKEN
     INVALID_OR_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "Mã không hợp lệ hoặc đã hết hạn"),
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Mã đã hết hạn"),
-
+    // LessonSession
+    INVAILD_LESSONSESSION(HttpStatus.OK, "Ca học không hợp lệ"),
     // Course
-    COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy môn học");
-
+    COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy môn học"),
+    // Annoucement
+    ANNOUNCEMENT_NOT_FOUND(HttpStatus.OK, "Thông báo không tồn tại"),
+    //Room
+    SESSION_NOT_FOUND(HttpStatus.OK, "Ca học không tồn tại"),
+    TEACHER_SCHEDULE_CONFLICT(HttpStatus.OK, "Giáo viên bị trùng lịch"),
+    ROOM_NOT_FOUND(HttpStatus.OK, "Phòng học không tồn tại"),
+    ROOM_SCHEDULE_CONFLICT(HttpStatus.OK, "Phòng học bị trùng");
     private final HttpStatus status;
     private final String message;
 

@@ -24,12 +24,14 @@ public enum SuccessCode {
 
 
     // Course & Class Module
+    CREATE_ANNOUCEMENT_SUCCESS(HttpStatus.OK,"Tạo thông báo lớp học thành công"),
     CLASS_CREATED(HttpStatus.CREATED, "Tạo lớp học thành công"),
     ENROLL_CLASS_SUCCESS(HttpStatus.OK, "Tham gia lớp học thành công"),
     GET_CLASS_MEMBERS_SUCCESS(HttpStatus.OK, "Lấy danh sách thành viên lớp thành công"),
     GET_CLASS_MEMBER_SUCCESS(HttpStatus.OK, "Lấy thông tin thành viên lớp thành công"),
     GET_CLASSES_SUCCESS(HttpStatus.OK, "Lấy danh sách các lớp thành công"),
     GET_CLASS_SUCCESS(HttpStatus.OK,("Lấy thông tin lớp học thành công")),
+    GET_ANNOUCEMENTS_SUCESS(HttpStatus.OK, "Lấy danh sách thông báo thành công"),
     UPDATE_CLASS_STATUS_SUCCESS(HttpStatus.OK, "Cập nhật trạng thái lớp học thành công"),
     APPROVE_CLASS_MEMBER_SUCCESS(HttpStatus.OK, "Phê duyệt thành viên vào lớp thành công"),
     CHANGE_CLASS_MEMBER_ROLE_SUCCESS(HttpStatus.OK, "Thay đổi vai trò thành viên thành công"),
@@ -42,6 +44,7 @@ public enum SuccessCode {
     GET_COURSE_SUCCESS(HttpStatus.OK, "Lấy thông tin môn học thành công"),
     CREATE_COURSE_SUCCESS(HttpStatus.CREATED, "Tạo môn học thành công"),
     UPDATE_COURSE_SUCCESS(HttpStatus.OK, "Cập nhật môn học thành công"),
+    UPDATE_ANNOUNCEMENT_SUCCESS(HttpStatus.OK, "Cập nhật trạng thái thông báo thành công"),
     DELETE_COURSE_SUCCESS(HttpStatus.OK, "Xóa (ẩn) môn học thành công"),
     RESTORE_COURSE_SUCCESS(HttpStatus.OK, "Khôi phục môn học thành công");
 

@@ -15,7 +15,7 @@ public class PageResponse<T> {
     private List<T> items;
     private int pageNumber;
     private int pageSize;
-    private long totalElements;
+    private long totalElements; //Tổng số phần tử khớp truy vấn trên tất cả các trang
     private int totalPages;
     private boolean isLast;
 }

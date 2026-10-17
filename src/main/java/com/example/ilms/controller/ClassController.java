@@ -35,7 +35,7 @@ public class ClassController {
 
     }
 
-    @GetMapping("/get-list-classes")
+    @GetMapping("/list-classes")
     public ApiResponse<PageResponse<ClassResponseDTO>> getClasses(
             @RequestParam(required = false) String search,
             @RequestParam(required = false) String visibility,

@@ -11,18 +11,20 @@ import com.example.ilms.exception.ErrorCode;
 import com.example.ilms.repository.ClassAnnouncementReposity;
 import com.example.ilms.repository.ClassRepository;
 import io.swagger.v3.oas.annotations.servers.Server;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-@Server
+@Service
 @RequiredArgsConstructor
 public class ClassAnnouncementService {
     private final ClassAnnouncementReposity classAnnouncementReposity;
@@ -40,17 +42,33 @@ public class ClassAnnouncementService {
                 .build();
         classAnnouncementReposity.save(classAnnouncement);
     }
-
+    @Transactional(readOnly = true)
     public PageResponse<AnnouncementResponseDTO> getAnouncements(UUID classId, int page, int size) {
         //sắp xếp theo isPinned giảm dần, rồi đến createdAt giảm dần
         Sort sort = Sort.by(Sort.Direction.DESC, "isPinned")
                 .and(Sort.by(Sort.Direction.DESC, "createdAt"));
         Pageable pageable = PageRequest.of(page, size, sort);
         Page<ClassAnnouncement> announcementPage = classAnnouncementReposity.findByClassEntityId(classId, pageable);
+        // chuyển từng thông báo từ entity sang DTO, rồi gom thành danh sách content
         List<AnnouncementResponseDTO> content = announcementPage.getContent().stream()
-                .map(entity ->{
-                    AnnouncementResponseDTO dto = modelMapper.map(entity, AnnouncementResponseDTO.class);
-                    dto.setAuthorId(entity.getAuthor().getId());
+                .map(entity -> {
+                    AnnouncementResponseDTO dto = new AnnouncementResponseDTO();
+
+                    dto.setId(entity.getId());
+                    dto.setTitle(entity.getTitle());
+                    dto.setContent(entity.getContent());
+                    dto.setPinned(entity.getIsPinned());
+
+                    User author = entity.getAuthor();
+
+                    if (author != null) {
+                        dto.setAuthorId(author.getId());
+                        dto.setAuthorName(author.getFullName());
+                    }
+
+                    dto.setCreateTime(entity.getCreatedAt());
+                    dto.setUpdateTime(entity.getUpdatedAt());
+
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -63,6 +81,15 @@ public class ClassAnnouncementService {
                 .totalPages(announcementPage.getTotalPages())
                 .isLast(announcementPage.isLast())
                 .build();
+    }
+
+    @Transactional
+    public void TogglePinStatus(UUID announcementId, boolean isPinned) {
+        ClassAnnouncement classAnnouncement = classAnnouncementReposity.findById(announcementId)
+                .orElseThrow(() -> new AppException(ErrorCode.ANNOUNCEMENT_NOT_FOUND));
+        classAnnouncement.setIsPinned(isPinned);
+
+        classAnnouncementReposity.save(classAnnouncement);
     }
 }
 
