@@ -47,7 +47,7 @@ public enum ErrorCode {
     SESSION_NOT_FOUND(HttpStatus.OK, "Ca học không tồn tại"),
     TEACHER_SCHEDULE_CONFLICT(HttpStatus.OK, "Giáo viên bị trùng lịch"),
     ROOM_NOT_FOUND(HttpStatus.OK, "Phòng học không tồn tại"),
-    ROOM_SCHEDULE_CONFLICT(HttpStatus.OK, "Phòng học bị trùng");
+    ROOM_SCHEDULE_CONFLICT(HttpStatus.CONFLICT, "Phòng học bị trùng");
     private final HttpStatus status;
     private final String message;
 

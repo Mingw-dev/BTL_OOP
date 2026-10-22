@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
@@ -15,12 +16,18 @@ public interface LessonSessionRepository extends JpaRepository<LessonSession, UU
     List<LessonSession> findByClassEntityIdOrderByStartTimeAsc(UUID classId);
 
     // 1. Kiểm tra trùng phòng học trong khoảng thời gian từ startTime đến endTime
-    @Query("SELECT COUNT(s) > 0 FROM LessonSession s " +
-            "WHERE s.room.id = :roomId " +
-            "AND s.startTime < :endTime " +
-            "AND s.endTime > :startTime")
+    @Query("""
+        SELECT COUNT(s) > 0
+        FROM LessonSession s
+        WHERE s.room.id = :roomId
+          AND s.sessionDate = :sessionDate
+          AND s.startTime < :endTime
+          AND s.endTime > :startTime
+        """)
     boolean existsRoomConflict(
             @Param("roomId") UUID roomId,
+            @Param("sessionDate") LocalDate sessionDate,
             @Param("startTime") LocalTime startTime,
-            @Param("endTime") LocalTime endTime);
+            @Param("endTime") LocalTime endTime
+    );
 }

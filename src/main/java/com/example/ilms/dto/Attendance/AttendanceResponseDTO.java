@@ -1,16 +1,21 @@
-package com.example.ilms.dto.classDTO;
+package com.example.ilms.dto.Attendance;
 
+import com.example.ilms.type.AttendanceStatus;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.UUID;
-
 @Data
 @Builder
-public class AttendanceResponseDTO {
-    private UUID id;
+@NoArgsConstructor
+@AllArgsConstructor
+public class AttendanceResponseDTO{
+    private UUID classId;
     private UUID sessionId;
     private UUID studentId;
-    private String status;
+    private AttendanceStatus status;
     private String note;
 }
+

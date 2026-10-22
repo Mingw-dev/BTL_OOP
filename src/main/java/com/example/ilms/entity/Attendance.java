@@ -1,5 +1,6 @@
 package com.example.ilms.entity;
 
+import com.example.ilms.type.AttendanceStatus;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -33,11 +34,12 @@ public class Attendance {
     // Khóa ngoại liên kết với bảng users (cột user_id)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user; // Đổi từ student thành user cho khớp SQL
+    private User student; // Đổi từ student thành user cho khớp SQL
 
     // Trạng thái: 'PRESENT', 'ABSENT', 'LATE', 'EXCUSED'
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String status;
+    private AttendanceStatus status;
 
     // Thời gian thực tế quẹt thẻ / điểm danh
     @Column(name = "check_in_time")

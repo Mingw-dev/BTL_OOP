@@ -1,30 +1,30 @@
 package com.example.ilms.service;
 
+import com.example.ilms.dto.Attendance.AttendanceResponseDTO;
 import com.example.ilms.dto.Attendance.BatchAttendanceRequestDTO;
-import com.example.ilms.dto.LessonSession.LessionSessionResponseDTO;
+import com.example.ilms.dto.LessonSession.LessonSessionResponseDTO;
 import com.example.ilms.dto.LessonSession.LessonSessionCreateDTO;
-import com.example.ilms.entity.ClassEntity;
-import com.example.ilms.entity.LessonSession;
-import com.example.ilms.entity.User;
+import com.example.ilms.entity.*;
 import com.example.ilms.exception.AppException;
 import com.example.ilms.exception.ErrorCode;
 import com.example.ilms.repository.*;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import com.example.ilms.repository.RoomReposity;
+import com.example.ilms.repository.RoomRepositoty;
+import com.example.ilms.type.AttendanceStatus;
+import java.util.*;
 
-import java.util.List;
-import java.util.UUID;
-import com.example.ilms.entity.Room;
 @Service
+@RequiredArgsConstructor
 public class LessonSessionService {
-    private LessonSessionRepository lessonSessionRepository;
-    private AttendanceReposity attendanceReposity;
-    private RoomReposity roomReposity;
-    private ClassRepository classRepository;
-    private UserRepository userRepository;
-    private ModelMapper modelMapper;
+    private final LessonSessionRepository lessonSessionRepository;
+    private final AttendanceReposity attendanceReposity;
+    private final RoomRepositoty roomRepositoty;
+    private final ClassRepository classRepository;
+    private final UserRepository userRepository;
+    private final ModelMapper modelMapper;
     // tao 1 ca hoc
     @Transactional
     public void createLessonSession(UUID classId, LessonSessionCreateDTO request) {
@@ -32,9 +32,9 @@ public class LessonSessionService {
             throw new AppException(ErrorCode.INVAILD_LESSONSESSION);
         }
         ClassEntity classEntity = classRepository.findById(classId).orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
-        Room room = roomReposity.findById(request.getRoomId()).orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
+        Room room = roomRepositoty.findById(request.getRoomId()).orElseThrow(() -> new AppException(ErrorCode.ROOM_NOT_FOUND));
 
-        boolean isRoomBusy = lessonSessionRepository.existsRoomConflict(request.getRoomId(), request.getStartTime(), request.getEndTime());
+        boolean isRoomBusy = lessonSessionRepository.existsRoomConflict(request.getRoomId(),request.getSessionDate(), request.getStartTime(), request.getEndTime());
         if (isRoomBusy) {
             throw new AppException(ErrorCode.ROOM_SCHEDULE_CONFLICT);
         }
@@ -51,19 +51,70 @@ public class LessonSessionService {
         lessonSessionRepository.save(lessonSession);
     }
     // danh sách ca học
-    public List<LessionSessionResponseDTO> getClassSessions(UUID classId) {
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<LessonSessionResponseDTO> getClassSessions(UUID classId) {
         return lessonSessionRepository
                 .findByClassEntityIdOrderByStartTimeAsc(classId)
                 .stream() //Stream là một luồng xử lý dữ liệu, cho phép thực hiện các thao tác như lọc, chuyển đổi, sắp xếp dữ liệu mà không cần tự viết vòng lặp for
-                .map(lessonSession -> modelMapper.map(lessonSession,LessionSessionResponseDTO.class))
+                .map(lessonSession -> LessonSessionResponseDTO.builder()
+                        .classId(lessonSession.getClassEntity().getId())
+                        .lessonSessionId(lessonSession.getId())
+                        .className(lessonSession.getClassEntity().getName())
+                        .sessionDate(lessonSession.getSessionDate())
+                        .startTime(lessonSession.getStartTime())
+                        .endTime(lessonSession.getEndTime())
+                        .note(lessonSession.getNote())
+                        .roomName(lessonSession.getRoom().getName())
+                        .build()
+                )
                 // map dùng để chuyển đổi từng phần tử của một Stream thành một giá trị hoặc đối tượng khác.
                 .toList();
     }
 
-    @Transactional
+
     public void takeBatchAttendance(UUID lessonSessionId, BatchAttendanceRequestDTO requestDTO) {
-        LessonSession lessonSession = lessonSessionRepository.findById(lessonSessionId).orElseThrow(() -> new AppException(ErrorCode.SESSION_NOT_FOUND));
+        LessonSession lessonSession = lessonSessionRepository.findById(lessonSessionId)
+                .orElseThrow(() -> new AppException(ErrorCode.SESSION_NOT_FOUND));
 
+        Map<UUID, Attendance> existingAttendance = new HashMap<>();
+        List<Attendance> attendanceList = attendanceReposity.findByLessonSession_Id(lessonSessionId);
+        for (Attendance a :  attendanceList) {
+            UUID studentId = a.getStudent().getId();
+            existingAttendance.put(studentId, a);
+        }
+        List<Attendance> toSave = new ArrayList<>();
+        for(BatchAttendanceRequestDTO.AttendanceItem item : requestDTO.getAttendances()) {
+            Attendance attendance = existingAttendance.get(item.getStudentId());
+            if(attendance != null) {
+                attendance.setStatus(item.getStatus());
+                attendance.setNote(item.getNote());
+            }
+            else {
+                User student = userRepository.findById(item.getStudentId())
+                        .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+                attendance = Attendance.builder()
+                        .student(student)
+                        .status(item.getStatus())
+                        .note(item.getNote())
+                        .lessonSession(lessonSession)
+                        .build();
+            }
+            toSave.add(attendance);
+        }
+        attendanceReposity.saveAll(toSave);
     }
-
+    @org.springframework.transaction.annotation.Transactional(readOnly = true)
+    public List<AttendanceResponseDTO> getSessionAttendances(UUID lessonSessionId) {
+            return attendanceReposity.findByLessonSession_Id(lessonSessionId)
+                    .stream()
+                    .map(a -> AttendanceResponseDTO.builder()
+                            .classId(a.getLessonSession().getClassEntity().getId())
+                            .sessionId(a.getLessonSession().getId())
+                            .studentId(a.getStudent().getId())
+                            .status(a.getStatus())
+                            .note(a.getNote())
+                            .build()
+                    )
+                    .toList();
+    }
 }

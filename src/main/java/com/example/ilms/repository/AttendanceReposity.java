@@ -1,6 +1,7 @@
 package com.example.ilms.repository;
 
 import com.example.ilms.entity.Attendance;
+import com.example.ilms.entity.LessonSession;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -9,5 +10,5 @@ import java.util.UUID;
 
 @Repository
 public interface AttendanceReposity extends JpaRepository<Attendance, UUID> {
-    List<Attendance> findByLessionId(UUID sessionId);
+    List<Attendance> findByLessonSession_Id(UUID sessionId);
 }

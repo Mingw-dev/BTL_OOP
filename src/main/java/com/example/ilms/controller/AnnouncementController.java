@@ -5,7 +5,6 @@ import com.example.ilms.dto.announcement.AnnouncementCreateRequestDTO;
 import com.example.ilms.dto.announcement.AnnouncementResponseDTO;
 import com.example.ilms.dto.common.PageResponse;
 import com.example.ilms.dto.response.ApiResponse;
-import com.example.ilms.entity.ClassAnnouncement;
 import com.example.ilms.entity.User;
 import com.example.ilms.service.ClassAnnouncementService;
 import jakarta.validation.Valid;
@@ -18,7 +17,7 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/v1/classes/class/{classId}/Announcements")
-public class classAnnouncementController {
+public class AnnouncementController {
     private final ClassAnnouncementService classAnnouncementService;
 
     @PostMapping
