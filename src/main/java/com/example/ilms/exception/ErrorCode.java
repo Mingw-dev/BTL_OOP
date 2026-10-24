@@ -39,7 +39,14 @@ public enum ErrorCode {
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Mã đã hết hạn"),
 
     // Course
-    COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy môn học");
+    COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy môn học"),
+
+    // Question
+    QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy câu hỏi hoặc câu hỏi đã bị xóa"),
+    CONCEPT_NOT_FOUND(HttpStatus.NOT_FOUND, "Nhãn kiến thức không tồn tại trong hệ thống"),
+    INVALID_QUESTION_DATA(HttpStatus.BAD_REQUEST, "Dữ liệu đầu vào của câu hỏi không hợp lệ"),
+    MISSING_CORRECT_ANSWER(HttpStatus.BAD_REQUEST, "Câu hỏi bắt buộc phải có đáp án đúng"),
+    QUESTION_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "Câu hỏi này đã bị vô hiệu hóa hoặc không còn hoạt động");
 
     private final HttpStatus status;
     private final String message;

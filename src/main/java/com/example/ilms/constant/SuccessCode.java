@@ -41,8 +41,14 @@ public enum SuccessCode {
     CREATE_COURSE_SUCCESS(HttpStatus.CREATED, "Tạo môn học thành công"),
     UPDATE_COURSE_SUCCESS(HttpStatus.OK, "Cập nhật môn học thành công"),
     DELETE_COURSE_SUCCESS(HttpStatus.OK, "Xóa (ẩn) môn học thành công"),
-    RESTORE_COURSE_SUCCESS(HttpStatus.OK, "Khôi phục môn học thành công");
+    RESTORE_COURSE_SUCCESS(HttpStatus.OK, "Khôi phục môn học thành công"),
 
+    // Question Module
+    GET_QUESTIONS_SUCCESS(HttpStatus.OK, "Lấy danh sách câu hỏi thành công"),
+    GET_QUESTION_DETAIL_SUCCESS(HttpStatus.OK, "Lấy thông tin chi tiết câu hỏi thành công"),
+    CREATE_QUESTION_SUCCESS(HttpStatus.CREATED, "Tạo câu hỏi thành công"),
+    UPDATE_QUESTION_SUCCESS(HttpStatus.OK, "Cập nhật câu hỏi thành công"),
+    DELETE_QUESTION_SUCCESS(HttpStatus.OK, "Xóa câu hỏi thành công");
     private final HttpStatus status;
     private final String message;
 }
