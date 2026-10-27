@@ -88,6 +88,78 @@ public class CourseService {
                 .build();
     }
 
+    public CourseResponseDTO getCourseById(UUID id, User currentUser) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        boolean isAdmin = currentUser.getRole() != null
+                && "ADMIN".equalsIgnoreCase(currentUser.getRole().getCode());
+
+        // User thường: không được xem môn PRIVATE, cũng không được xem môn đã xóa mềm
+        if (!isAdmin) {
+            if (!"PUBLIC".equalsIgnoreCase(course.getVisibility()) || course.getDeletedAt() != null) {
+                throw new AppException(ErrorCode.COURSE_NOT_FOUND);
+            }
+        }
+
+        return toResponseDTO(course);
+    }
+
+    public PageResponse<CourseResponseDTO> getCoursesByUser(
+            UUID userId,
+            String search,
+            int page,
+            int size,
+            User currentUser) {
+
+        // Admin xem được môn của bất kỳ ai; người dùng thường chỉ được xem môn của chính mình
+        boolean isAdmin = currentUser.getRole() != null
+                && "ROLE_ADMIN".equals(currentUser.getRole().getCode());
+        boolean isSelf = currentUser.getId().equals(userId);
+
+        // Kiểm tra quyền TRƯỚC khi kiểm tra tồn tại, để người thường không dò được userId nào có thật
+        if (!isAdmin && !isSelf) {
+            throw new AppException(ErrorCode.COURSE_ACCESS_DENIED);
+        }
+
+        if (!isSelf && !userRepository.existsById(userId)) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        // Chặn page âm / size không hợp lệ để không sinh OFFSET/LIMIT sai gây lỗi 500
+        int safePage = Math.max(page, 0);
+        int safeSize = (size < 1) ? 10 : Math.min(size, 100);
+
+        int limit = safeSize;
+        int offset = safePage * safeSize;
+
+        String userIdStr = userId.toString();
+
+        List<Course> courses = courseRepository.findMyCourses(
+                userIdStr, search, limit, offset);
+
+        long totalElements = courseRepository.countMyCourses(userIdStr, search);
+
+        if (search != null && !search.isBlank() && courses.isEmpty()) {
+            throw new AppException(ErrorCode.COURSE_NOT_FOUND);
+        }
+
+        int totalPages = (int) Math.ceil((double) totalElements / safeSize);
+        boolean isLast = (safePage + 1) >= totalPages;
+
+        List<CourseResponseDTO> items = courses.stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
+
+        return PageResponse.<CourseResponseDTO>builder()
+                .items(items)
+                .pageNumber(safePage)
+                .pageSize(safeSize)
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .isLast(isLast)
+                .build();
+    }
 
     private CourseResponseDTO toResponseDTO(Course course) {
         CourseResponseDTO dto = modelMapper.map(course, CourseResponseDTO.class);
