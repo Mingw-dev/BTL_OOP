@@ -40,6 +40,9 @@ public enum ErrorCode {
 
     // Course
     COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy môn học"),
+    COURSE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "Bạn không có quyền xem môn học của người dùng này"),
+    COURSE_ALREADY_ASSIGNED(HttpStatus.CONFLICT, "Môn học đã được gán cho lớp này"),
+    INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu");
 
     // Question
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy câu hỏi hoặc câu hỏi đã bị xóa"),
@@ -47,6 +50,7 @@ public enum ErrorCode {
     INVALID_QUESTION_DATA(HttpStatus.BAD_REQUEST, "Dữ liệu đầu vào của câu hỏi không hợp lệ"),
     MISSING_CORRECT_ANSWER(HttpStatus.BAD_REQUEST, "Câu hỏi bắt buộc phải có đáp án đúng"),
     QUESTION_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "Câu hỏi này đã bị vô hiệu hóa hoặc không còn hoạt động");
+
 
     private final HttpStatus status;
     private final String message;
