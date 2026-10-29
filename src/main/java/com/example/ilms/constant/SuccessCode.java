@@ -45,7 +45,7 @@ public enum SuccessCode {
     RESTORE_COURSE_SUCCESS(HttpStatus.OK, "Khôi phục môn học thành công"),
     GET_CLASS_COURSES_SUCCESS(HttpStatus.OK, "Lấy danh sách môn học của lớp thành công"),
     ASSIGN_COURSE_TO_CLASS_SUCCESS(HttpStatus.CREATED, "Gán môn học vào lớp thành công"),
-    BATCH_ASSIGN_COURSES_SUCCESS(HttpStatus.OK, "Gán nhiều môn học vào lớp hoàn tất");
+    BATCH_ASSIGN_COURSES_SUCCESS(HttpStatus.OK, "Gán nhiều môn học vào lớp hoàn tất"),
 
     // Question Module
     GET_QUESTIONS_SUCCESS(HttpStatus.OK, "Lấy danh sách câu hỏi thành công"),

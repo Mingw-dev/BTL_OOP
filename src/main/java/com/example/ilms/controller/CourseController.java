@@ -74,4 +74,13 @@ public class CourseController {
                 courseService.getCourseById(id, currentUser)
         );
     }
+
+    @DeleteMapping("/{id}/soft")
+    public ApiResponse<Void> softDeleteCourse(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal User currentUser) {
+
+        courseService.softDeleteCourse(id, currentUser);
+        return ApiResponse.of(SuccessCode.DELETE_COURSE_SUCCESS, null);
+    }
 }

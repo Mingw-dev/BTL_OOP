@@ -1,5 +1,6 @@
 package com.example.ilms.service;
 
+import java.time.LocalDateTime;
 import com.example.ilms.dto.common.PageResponse;
 import com.example.ilms.dto.course.CourseCreateRequestDTO;
 import com.example.ilms.dto.course.CourseResponseDTO;
@@ -103,6 +104,26 @@ public class CourseService {
         }
 
         return toResponseDTO(course);
+    }
+
+    @Transactional
+    public void softDeleteCourse(UUID id, User currentUser) {
+        Course course = courseRepository.findById(id)
+                .filter(c -> c.getDeletedAt() == null)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        boolean isAdmin = currentUser.getRole() != null
+                && "ROLE_ADMIN".equals(currentUser.getRole().getCode());
+
+        boolean isOwner = course.getOwner() != null
+                && course.getOwner().getId().equals(currentUser.getId());
+
+        if (!isAdmin && !isOwner) {
+            throw new AppException(ErrorCode.COURSE_FORBIDDEN);
+        }
+
+        course.setDeletedAt(LocalDateTime.now());
+        courseRepository.save(course);
     }
 
     public PageResponse<CourseResponseDTO> getCoursesByUser(
