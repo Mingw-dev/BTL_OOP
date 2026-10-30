@@ -126,6 +126,29 @@ public class CourseService {
         courseRepository.save(course);
     }
 
+    @Transactional
+    public CourseResponseDTO restoreCourse(UUID id, User currentUser) {
+        boolean isAdmin = currentUser.getRole() != null
+                && "ROLE_ADMIN".equals(currentUser.getRole().getCode());
+
+        // Chỉ Admin được khôi phục. Kiểm tra quyền trước để người thường không dò được môn nào tồn tại
+        if (!isAdmin) {
+            throw new AppException(ErrorCode.COURSE_RESTORE_FORBIDDEN);
+        }
+
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        if (course.getDeletedAt() == null) {
+            throw new AppException(ErrorCode.COURSE_NOT_DELETED);
+        }
+
+        course.setDeletedAt(null);
+        Course restoredCourse = courseRepository.save(course);
+
+        return toResponseDTO(restoredCourse);
+    }
+
     public PageResponse<CourseResponseDTO> getCoursesByUser(
             UUID userId,
             String search,

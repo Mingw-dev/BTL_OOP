@@ -83,4 +83,15 @@ public class CourseController {
         courseService.softDeleteCourse(id, currentUser);
         return ApiResponse.of(SuccessCode.DELETE_COURSE_SUCCESS, null);
     }
+
+    @PatchMapping("/{id}/restore")
+    public ApiResponse<CourseResponseDTO> restoreCourse(
+            @PathVariable UUID id,
+            @AuthenticationPrincipal User currentUser) {
+
+        return ApiResponse.of(
+                SuccessCode.RESTORE_COURSE_SUCCESS,
+                courseService.restoreCourse(id, currentUser)
+        );
+    }
 }
