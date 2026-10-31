@@ -48,7 +48,15 @@ public enum SuccessCode {
     GET_QUESTION_DETAIL_SUCCESS(HttpStatus.OK, "Lấy thông tin chi tiết câu hỏi thành công"),
     CREATE_QUESTION_SUCCESS(HttpStatus.CREATED, "Tạo câu hỏi thành công"),
     UPDATE_QUESTION_SUCCESS(HttpStatus.OK, "Cập nhật câu hỏi thành công"),
-    DELETE_QUESTION_SUCCESS(HttpStatus.OK, "Xóa câu hỏi thành công");
+    DELETE_QUESTION_SUCCESS(HttpStatus.OK, "Xóa câu hỏi thành công"),
+
+    // Question Concept Module
+    GET_CONCEPTS_SUCCESS(HttpStatus.OK, "Lấy danh sách khái niệm kiến thức thành công"),
+    GET_CONCEPT_SUCCESS(HttpStatus.OK, "Lấy chi tiết khái niệm kiến thức thành công"),
+    CONCEPT_CREATED(HttpStatus.CREATED, "Tạo khái niệm kiến thức thành công"),
+    CONCEPT_UPDATED(HttpStatus.OK, "Cập nhật khái niệm kiến thức thành công"),
+    CONCEPT_DELETED(HttpStatus.OK, "Xóa khái niệm kiến thức thành công");
+
     private final HttpStatus status;
     private final String message;
 }
