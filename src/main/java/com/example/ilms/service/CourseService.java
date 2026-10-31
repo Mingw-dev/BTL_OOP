@@ -1,5 +1,6 @@
 package com.example.ilms.service;
 
+import java.time.LocalDateTime;
 import com.example.ilms.dto.common.PageResponse;
 import com.example.ilms.dto.course.CourseCreateRequestDTO;
 import com.example.ilms.dto.course.CourseResponseDTO;
@@ -88,6 +89,121 @@ public class CourseService {
                 .build();
     }
 
+    public CourseResponseDTO getCourseById(UUID id, User currentUser) {
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        boolean isAdmin = currentUser.getRole() != null
+                && "ADMIN".equalsIgnoreCase(currentUser.getRole().getCode());
+
+        // User thường: không được xem môn PRIVATE, cũng không được xem môn đã xóa mềm
+        if (!isAdmin) {
+            if (!"PUBLIC".equalsIgnoreCase(course.getVisibility()) || course.getDeletedAt() != null) {
+                throw new AppException(ErrorCode.COURSE_NOT_FOUND);
+            }
+        }
+
+        return toResponseDTO(course);
+    }
+
+    @Transactional
+    public void softDeleteCourse(UUID id, User currentUser) {
+        Course course = courseRepository.findById(id)
+                .filter(c -> c.getDeletedAt() == null)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        boolean isAdmin = currentUser.getRole() != null
+                && "ROLE_ADMIN".equals(currentUser.getRole().getCode());
+
+        boolean isOwner = course.getOwner() != null
+                && course.getOwner().getId().equals(currentUser.getId());
+
+        if (!isAdmin && !isOwner) {
+            throw new AppException(ErrorCode.COURSE_FORBIDDEN);
+        }
+
+        course.setDeletedAt(LocalDateTime.now());
+        courseRepository.save(course);
+    }
+
+    @Transactional
+    public CourseResponseDTO restoreCourse(UUID id, User currentUser) {
+        boolean isAdmin = currentUser.getRole() != null
+                && "ROLE_ADMIN".equals(currentUser.getRole().getCode());
+
+        // Chỉ Admin được khôi phục. Kiểm tra quyền trước để người thường không dò được môn nào tồn tại
+        if (!isAdmin) {
+            throw new AppException(ErrorCode.COURSE_RESTORE_FORBIDDEN);
+        }
+
+        Course course = courseRepository.findById(id)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        if (course.getDeletedAt() == null) {
+            throw new AppException(ErrorCode.COURSE_NOT_DELETED);
+        }
+
+        course.setDeletedAt(null);
+        Course restoredCourse = courseRepository.save(course);
+
+        return toResponseDTO(restoredCourse);
+    }
+
+    public PageResponse<CourseResponseDTO> getCoursesByUser(
+            UUID userId,
+            String search,
+            int page,
+            int size,
+            User currentUser) {
+
+        // Admin xem được môn của bất kỳ ai; người dùng thường chỉ được xem môn của chính mình
+        boolean isAdmin = currentUser.getRole() != null
+                && "ROLE_ADMIN".equals(currentUser.getRole().getCode());
+        boolean isSelf = currentUser.getId().equals(userId);
+
+        // Kiểm tra quyền TRƯỚC khi kiểm tra tồn tại, để người thường không dò được userId nào có thật
+        if (!isAdmin && !isSelf) {
+            throw new AppException(ErrorCode.COURSE_ACCESS_DENIED);
+        }
+
+        if (!isSelf && !userRepository.existsById(userId)) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        // Chặn page âm / size không hợp lệ để không sinh OFFSET/LIMIT sai gây lỗi 500
+        int safePage = Math.max(page, 0);
+        int safeSize = (size < 1) ? 10 : Math.min(size, 100);
+
+        int limit = safeSize;
+        int offset = safePage * safeSize;
+
+        String userIdStr = userId.toString();
+
+        List<Course> courses = courseRepository.findMyCourses(
+                userIdStr, search, limit, offset);
+
+        long totalElements = courseRepository.countMyCourses(userIdStr, search);
+
+        if (search != null && !search.isBlank() && courses.isEmpty()) {
+            throw new AppException(ErrorCode.COURSE_NOT_FOUND);
+        }
+
+        int totalPages = (int) Math.ceil((double) totalElements / safeSize);
+        boolean isLast = (safePage + 1) >= totalPages;
+
+        List<CourseResponseDTO> items = courses.stream()
+                .map(this::toResponseDTO)
+                .collect(Collectors.toList());
+
+        return PageResponse.<CourseResponseDTO>builder()
+                .items(items)
+                .pageNumber(safePage)
+                .pageSize(safeSize)
+                .totalElements(totalElements)
+                .totalPages(totalPages)
+                .isLast(isLast)
+                .build();
+    }
 
     private CourseResponseDTO toResponseDTO(Course course) {
         CourseResponseDTO dto = modelMapper.map(course, CourseResponseDTO.class);

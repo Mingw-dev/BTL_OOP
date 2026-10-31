@@ -39,4 +39,46 @@ public interface CourseRepository extends JpaRepository<Course, UUID> {
             @Param("visibility") String visibility,
             @Param("status") Boolean status
     );
+
+    @Query(value = "SELECT * FROM courses c WHERE " +
+            "c.deleted_at IS NULL AND " +
+            "EXISTS (" +
+            "   SELECT 1 FROM class_courses cc " +
+            "   JOIN classes cl ON cl.id = cc.class_id " +
+            "   JOIN class_members cm ON cm.class_id = cl.id " +
+            "   WHERE cc.course_id = c.id " +
+            "   AND cc.status = 'ACTIVE' " +
+            "   AND cl.deleted_at IS NULL " +
+            "   AND cm.status = 'ACTIVE' " +
+            "   AND cm.user_id = UNHEX(REPLACE(:userId, '-', ''))" +
+            ") AND " +
+            "(:search IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(c.course_code) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+            "ORDER BY c.created_at DESC, c.name ASC " +
+            "LIMIT :limit OFFSET :offset",
+            nativeQuery = true)
+    List<Course> findMyCourses(
+            @Param("userId") String userId,
+            @Param("search") String search,
+            @Param("limit") int limit,
+            @Param("offset") int offset
+    );
+
+    @Query(value = "SELECT COUNT(*) FROM courses c WHERE " +
+            "c.deleted_at IS NULL AND " +
+            "EXISTS (" +
+            "   SELECT 1 FROM class_courses cc " +
+            "   JOIN classes cl ON cl.id = cc.class_id " +
+            "   JOIN class_members cm ON cm.class_id = cl.id " +
+            "   WHERE cc.course_id = c.id " +
+            "   AND cc.status = 'ACTIVE' " +
+            "   AND cl.deleted_at IS NULL " +
+            "   AND cm.status = 'ACTIVE' " +
+            "   AND cm.user_id = UNHEX(REPLACE(:userId, '-', ''))" +
+            ") AND " +
+            "(:search IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%')) OR LOWER(c.course_code) LIKE LOWER(CONCAT('%', :search, '%')))",
+            nativeQuery = true)
+    long countMyCourses(
+            @Param("userId") String userId,
+            @Param("search") String search
+    );
 }

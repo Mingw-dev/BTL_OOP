@@ -40,6 +40,12 @@ public enum ErrorCode {
 
     // Course
     COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy môn học"),
+    COURSE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "Bạn không có quyền xem môn học của người dùng này"),
+    COURSE_ALREADY_ASSIGNED(HttpStatus.CONFLICT, "Môn học đã được gán cho lớp này"),
+    INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu"),
+    COURSE_FORBIDDEN(HttpStatus.FORBIDDEN, "Bạn không có quyền xóa môn học này"),
+    COURSE_RESTORE_FORBIDDEN(HttpStatus.FORBIDDEN, "Bạn không có quyền khôi phục môn học"),
+    COURSE_NOT_DELETED(HttpStatus.BAD_REQUEST, "Môn học chưa bị xóa nên không thể khôi phục"),
 
     // Question
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy câu hỏi hoặc câu hỏi đã bị xóa"),
@@ -50,6 +56,7 @@ public enum ErrorCode {
 
     // Question Concept Errors
     CONCEPT_ALREADY_EXISTS(HttpStatus.CONFLICT, "Câu hỏi này đã được gắn nhãn kiến thức này rồi");
+
     private final HttpStatus status;
     private final String message;
 
