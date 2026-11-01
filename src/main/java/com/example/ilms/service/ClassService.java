@@ -73,12 +73,13 @@ public class ClassService {
 
         return code;
     }
+    @Transactional(readOnly = true)
     public PageResponse<ClassResponseDTO> getClasses(String search, String visibility, int page, int size, User currentUser) {
         // Khởi tạo đối tượng phân trang, sắp xếp theo thời gian (nếu Entity có trường createdAt hoặc startAt)
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
         // Gọi hàm HQL từ Repository để lọc dữ liệu
-        Page<ClassEntity> classPage = classRepository.findClassesWithFilter(search, visibility, pageable);
+        Page<ClassEntity> classPage = classRepository.findClassesWithFilter(search, visibility, currentUser.getId(), pageable);
 
         List<ClassResponseDTO> content = classPage.getContent().stream()
                 .map(entity -> {
@@ -99,11 +100,14 @@ public class ClassService {
                 .isLast(classPage.isLast())
                 .build();
     }
-
+    @Transactional(readOnly = true)
     public ClassResponseDTO getClassById(UUID classId, User currentUser) {
         ClassEntity classEntity = classRepository.findById(classId)
                 .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
-
+        boolean isMember = classMemberRepository.existsByClassEntityIdAndUserId(classId, currentUser.getId());
+        if (!isMember) {
+            throw new AppException(ErrorCode.CLASS_ACCESS_DENIED);
+        }
         ClassResponseDTO response = modelMapper.map(classEntity, ClassResponseDTO.class);
         if (classEntity.getOwner() != null) {
             response.setOwnerId(classEntity.getOwner().getId());

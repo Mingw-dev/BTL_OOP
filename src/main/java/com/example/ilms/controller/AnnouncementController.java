@@ -31,18 +31,21 @@ public class AnnouncementController {
     public ApiResponse<PageResponse<AnnouncementResponseDTO>> getAnnouncements(
             @PathVariable UUID classId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal User user
     ) {
-        PageResponse<AnnouncementResponseDTO> result = classAnnouncementService.getAnouncements(classId, page, size);
+        PageResponse<AnnouncementResponseDTO> result = classAnnouncementService.getAnouncements(classId, page, size, user);
         return ApiResponse.of(SuccessCode.GET_ANNOUCEMENTS_SUCESS, result);
     }
 
     @PatchMapping("/{announcementId}/pin")
     public ApiResponse<Void> togglePinStatus(
+            @PathVariable UUID classId,
             @PathVariable("announcementId") UUID announcementId,
-            @RequestParam boolean pin
+            @RequestParam boolean pin,
+            @AuthenticationPrincipal User currentUser
     ) {
-        classAnnouncementService.TogglePinStatus(announcementId, pin);
+        classAnnouncementService.TogglePinStatus(classId, announcementId, pin, currentUser);
 
         return ApiResponse.of(
                 SuccessCode.UPDATE_ANNOUNCEMENT_SUCCESS, null

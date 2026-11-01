@@ -14,18 +14,21 @@ import java.util.UUID;
 @Repository
 public interface ClassRepository extends JpaRepository<ClassEntity, UUID> {
 
-    // 1. Dùng để kiểm tra khi generate random code (đã có sẵn)
+    // 1. Dùng để kiểm tra khi generate random code
     boolean existsByClassCode(String classCode);
 
-    // 2. Tự động sinh query tìm lớp học theo code (không cần viết @Query)
+    // 2. Tự động sinh query tìm lớp học theo code
     Optional<ClassEntity> findByClassCode(String classCode);
 
-    // 3. Câu query phức tạp DÀNH RIÊNG cho tính năng phân trang (dùng trong hàm getClasses)
-    @Query("SELECT c FROM ClassEntity c WHERE " +
-            "(:search IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%'))) AND " +
-            "(:visibility IS NULL OR c.visibility = :visibility)")
+    // 3. join với classmember để chỉ lấy các lớp mà currentUser đang tham gia
+    @Query("SELECT c FROM ClassEntity c " +
+            "JOIN ClassMember cm ON cm.classEntity.id = c.id " +
+            "WHERE cm.user.id = :userId " +
+            "AND (:search IS NULL OR LOWER(c.name) LIKE LOWER(CONCAT('%', :search, '%'))) " +
+            "AND (:visibility IS NULL OR c.visibility = :visibility)")
     Page<ClassEntity> findClassesWithFilter(
             @Param("search") String search,
             @Param("visibility") String visibility,
+            @Param("userId") UUID userId,
             Pageable pageable);
 }

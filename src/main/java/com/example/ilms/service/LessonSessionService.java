@@ -15,7 +15,8 @@ import org.springframework.stereotype.Service;
 import com.example.ilms.repository.RoomRepositoty;
 import com.example.ilms.type.AttendanceStatus;
 import java.util.*;
-
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 @Service
 @RequiredArgsConstructor
 public class LessonSessionService {
@@ -24,10 +25,13 @@ public class LessonSessionService {
     private final RoomRepositoty roomRepositoty;
     private final ClassRepository classRepository;
     private final UserRepository userRepository;
+    private final ClassMemberRepository classMemberRepository;
+    private final AnnouncementAccessService announcementAccessService;
     private final ModelMapper modelMapper;
     // tao 1 ca hoc
     @Transactional
-    public void createLessonSession(UUID classId, LessonSessionCreateDTO request) {
+    public void createLessonSession(UUID classId, LessonSessionCreateDTO request, User currentUser) {
+        announcementAccessService.requiredRoleMember(classId, currentUser);
         if (!request.getEndTime().isAfter(request.getStartTime())) {
             throw new AppException(ErrorCode.INVAILD_LESSONSESSION);
         }
@@ -52,7 +56,8 @@ public class LessonSessionService {
     }
     // danh sách ca học
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public List<LessonSessionResponseDTO> getClassSessions(UUID classId) {
+    public List<LessonSessionResponseDTO> getClassSessions(UUID classId, User currentUser) {
+        announcementAccessService.getActiveMember(classId, currentUser);
         return lessonSessionRepository
                 .findByClassEntityIdOrderByStartTimeAsc(classId)
                 .stream() //Stream là một luồng xử lý dữ liệu, cho phép thực hiện các thao tác như lọc, chuyển đổi, sắp xếp dữ liệu mà không cần tự viết vòng lặp for
@@ -71,11 +76,45 @@ public class LessonSessionService {
                 .toList();
     }
 
+    @Transactional
+    public void takeBatchAttendance(UUID classId, UUID lessonSessionId, BatchAttendanceRequestDTO requestDTO, User currentUser) {
+        ClassEntity classEntity = classRepository.findById(classId).orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
 
-    public void takeBatchAttendance(UUID lessonSessionId, BatchAttendanceRequestDTO requestDTO) {
         LessonSession lessonSession = lessonSessionRepository.findById(lessonSessionId)
                 .orElseThrow(() -> new AppException(ErrorCode.SESSION_NOT_FOUND));
 
+        if (!lessonSession.getClassEntity().getId().equals(classId)) {
+            throw new AppException(ErrorCode.SESSION_NOT_FOUND);
+        }
+        announcementAccessService.requiredRoleMember(lessonSession.getClassEntity().getId(), currentUser);
+
+        if(requestDTO == null || requestDTO.getAttendances() == null || requestDTO.getAttendances().size() == 0) {
+            throw new  ResponseStatusException(HttpStatus.BAD_REQUEST, "Danh sách điểm danh không được để trống");
+        }
+        Set<UUID> studentIds = new HashSet<>();
+        for(BatchAttendanceRequestDTO.AttendanceItem item : requestDTO.getAttendances()) {
+            if (item == null || item.getStudentId() == null || item.getStatus() == null) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mỗi mục điểm danh học sinh cần phải có đủ studentId và status");
+            }
+            if (!studentIds.add(item.getStudentId())) {
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Trùng học sinh trong danh sách: " + item.getStudentId()
+                );
+            }
+            ClassMember member = classMemberRepository.findByClassEntity_IdAndUser_Id(lessonSession.getClassEntity().getId(), item.getStudentId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Học sinh không thuộc lớp học này"));
+
+            if (!"ACTIVE".equals(member.getStatus())
+                    || !"STUDENT".equals(member.getRole())) {
+
+                throw new ResponseStatusException(
+                        HttpStatus.BAD_REQUEST,
+                        "Tài khoản chưa được kích hoạt trong lớp này"
+                                + item.getStudentId()
+                );
+            }
+        }
         Map<UUID, Attendance> existingAttendance = new HashMap<>();
         List<Attendance> attendanceList = attendanceReposity.findByLessonSession_Id(lessonSessionId);
         for (Attendance a :  attendanceList) {
@@ -104,17 +143,22 @@ public class LessonSessionService {
         attendanceReposity.saveAll(toSave);
     }
     @org.springframework.transaction.annotation.Transactional(readOnly = true)
-    public List<AttendanceResponseDTO> getSessionAttendances(UUID lessonSessionId) {
-            return attendanceReposity.findByLessonSession_Id(lessonSessionId)
-                    .stream()
-                    .map(a -> AttendanceResponseDTO.builder()
-                            .classId(a.getLessonSession().getClassEntity().getId())
-                            .sessionId(a.getLessonSession().getId())
-                            .studentId(a.getStudent().getId())
-                            .status(a.getStatus())
-                            .note(a.getNote())
-                            .build()
+    public List<AttendanceResponseDTO> getSessionAttendances(UUID classId, UUID lessonSessionId, User currentUser) {
+        LessonSession lessonSession = lessonSessionRepository.findById(lessonSessionId).orElseThrow(() -> new AppException(ErrorCode.SESSION_NOT_FOUND));
+        announcementAccessService.requiredRoleMember(lessonSession.getClassEntity().getId(), currentUser);
+        if (!lessonSession.getClassEntity().getId().equals(classId)) {
+            throw new AppException(ErrorCode.SESSION_NOT_FOUND);
+        }
+        return attendanceReposity.findByLessonSession_Id(lessonSessionId)
+                .stream()
+                .map(a -> AttendanceResponseDTO.builder()
+                        .classId(a.getLessonSession().getClassEntity().getId())
+                        .sessionId(a.getLessonSession().getId())
+                        .studentId(a.getStudent().getId())
+                        .status(a.getStatus())
+                        .note(a.getNote())
+                        .build()
                     )
-                    .toList();
+                .toList();
     }
 }

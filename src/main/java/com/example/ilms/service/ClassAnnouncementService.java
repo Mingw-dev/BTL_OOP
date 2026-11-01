@@ -23,15 +23,19 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
-
+import com.example.ilms.event.AnnouncementCreateEvent;
+import org.springframework.context.ApplicationEventPublisher;
 @Service
 @RequiredArgsConstructor
 public class ClassAnnouncementService {
     private final ClassAnnouncementReposity classAnnouncementReposity;
     private final ModelMapper modelMapper;
     private final ClassRepository classRepository;
-
+    private final AnnouncementAccessService announcementAccessService;
+    private final ApplicationEventPublisher eventPublisher;
+    @Transactional
     public void createAnnouncement(AnnouncementCreateRequestDTO requestDTO, UUID classId, User currentUser) {
+        announcementAccessService.requiredRoleMember(classId, currentUser);
         ClassEntity classEntity = classRepository.findById(classId).orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
         ClassAnnouncement classAnnouncement = ClassAnnouncement.builder()
                 .classEntity(classEntity)
@@ -40,11 +44,22 @@ public class ClassAnnouncementService {
                 .isPinned(false)
                 .author(currentUser)
                 .build();
-        classAnnouncementReposity.save(classAnnouncement);
+        ClassAnnouncement saved =
+                classAnnouncementReposity.save(classAnnouncement);
+
+        eventPublisher.publishEvent(
+                new AnnouncementCreateEvent(
+                        classId,
+                        saved.getId()
+                )
+        );
     }
+
     @Transactional(readOnly = true)
-    public PageResponse<AnnouncementResponseDTO> getAnouncements(UUID classId, int page, int size) {
+    public PageResponse<AnnouncementResponseDTO> getAnouncements(UUID classId, int page, int size, User currentUser) {
         //sắp xếp theo isPinned giảm dần, rồi đến createdAt giảm dần
+
+        announcementAccessService.getActiveMember(classId, currentUser);
         Sort sort = Sort.by(Sort.Direction.DESC, "isPinned")
                 .and(Sort.by(Sort.Direction.DESC, "createdAt"));
         Pageable pageable = PageRequest.of(page, size, sort);
@@ -84,9 +99,13 @@ public class ClassAnnouncementService {
     }
 
     @Transactional
-    public void TogglePinStatus(UUID announcementId, boolean isPinned) {
+    public void TogglePinStatus(UUID classId, UUID announcementId, boolean isPinned, User currentUser) {
         ClassAnnouncement classAnnouncement = classAnnouncementReposity.findById(announcementId)
                 .orElseThrow(() -> new AppException(ErrorCode.ANNOUNCEMENT_NOT_FOUND));
+        if (!classAnnouncement.getClassEntity().getId().equals(classId)) {
+            throw new AppException(ErrorCode.ANNOUNCEMENT_NOT_FOUND);
+        }
+        announcementAccessService.requiredRoleMember(classAnnouncement.getClassEntity().getId(), currentUser);
         classAnnouncement.setIsPinned(isPinned);
 
         classAnnouncementReposity.save(classAnnouncement);
