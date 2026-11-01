@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import com.example.ilms.dto.common.PageResponse;
 import com.example.ilms.dto.course.CourseCreateRequestDTO;
 import com.example.ilms.dto.course.CourseResponseDTO;
+import com.example.ilms.dto.course.UserCourseResponseDTO;
 import com.example.ilms.entity.Course;
 import com.example.ilms.entity.User;
 import com.example.ilms.exception.AppException;
@@ -149,14 +150,14 @@ public class CourseService {
         return toResponseDTO(restoredCourse);
     }
 
-    public PageResponse<CourseResponseDTO> getCoursesByUser(
+    // Lấy danh sách (lớp + môn học) mà 1 user đang tham gia
+    public PageResponse<UserCourseResponseDTO> getCoursesByUser(
             UUID userId,
-            String search,
             int page,
             int size,
             User currentUser) {
 
-        // Admin xem được môn của bất kỳ ai; người dùng thường chỉ được xem môn của chính mình
+        // Admin xem được của bất kỳ ai; người dùng thường chỉ được xem của chính mình
         boolean isAdmin = currentUser.getRole() != null
                 && "ROLE_ADMIN".equals(currentUser.getRole().getCode());
         boolean isSelf = currentUser.getId().equals(userId);
@@ -179,23 +180,19 @@ public class CourseService {
 
         String userIdStr = userId.toString();
 
-        List<Course> courses = courseRepository.findMyCourses(
-                userIdStr, search, limit, offset);
+        List<CourseRepository.UserCourseProjection> rows =
+                courseRepository.findUserCourses(userIdStr, limit, offset);
 
-        long totalElements = courseRepository.countMyCourses(userIdStr, search);
-
-        if (search != null && !search.isBlank() && courses.isEmpty()) {
-            throw new AppException(ErrorCode.COURSE_NOT_FOUND);
-        }
+        long totalElements = courseRepository.countUserCourses(userIdStr);
 
         int totalPages = (int) Math.ceil((double) totalElements / safeSize);
         boolean isLast = (safePage + 1) >= totalPages;
 
-        List<CourseResponseDTO> items = courses.stream()
-                .map(this::toResponseDTO)
+        List<UserCourseResponseDTO> items = rows.stream()
+                .map(this::toUserCourseResponseDTO)
                 .collect(Collectors.toList());
 
-        return PageResponse.<CourseResponseDTO>builder()
+        return PageResponse.<UserCourseResponseDTO>builder()
                 .items(items)
                 .pageNumber(safePage)
                 .pageSize(safeSize)
@@ -203,6 +200,38 @@ public class CourseService {
                 .totalPages(totalPages)
                 .isLast(isLast)
                 .build();
+    }
+
+    private UserCourseResponseDTO toUserCourseResponseDTO(CourseRepository.UserCourseProjection row) {
+        return UserCourseResponseDTO.builder()
+                .classId(parseHexUuid(row.getClassId()))
+                .className(row.getClassName())
+                .classCode(row.getClassCode())
+                .courseId(parseHexUuid(row.getCourseId()))
+                .name(row.getName())
+                .description(row.getDescription())
+                .ownerId(parseHexUuid(row.getOwnerId()))
+                .registeredAt(parseDateTime(row.getRegisteredAt()))
+                .build();
+    }
+
+    // HEX() trả về chuỗi 32 ký tự liền không dấu gạch ngang,
+    // phải ghép lại thành định dạng 8-4-4-4-12 thì UUID.fromString mới đọc được.
+    private UUID parseHexUuid(String hex) {
+        if (hex == null || hex.isBlank()) {
+            return null;
+        }
+        String h = hex.trim();
+        String formatted = h.substring(0, 8) + "-" + h.substring(8, 12) + "-"
+                + h.substring(12, 16) + "-" + h.substring(16, 20) + "-" + h.substring(20);
+        return UUID.fromString(formatted);
+    }
+
+    private LocalDateTime parseDateTime(String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+        return LocalDateTime.parse(value.trim().replace(' ', 'T'));
     }
 
     private CourseResponseDTO toResponseDTO(Course course) {
