@@ -27,7 +27,6 @@ public enum SuccessCode {
     CREATE_ANNOUCEMENT_SUCCESS(HttpStatus.OK,"Tạo thông báo lớp học thành công"),
     CLASS_CREATED(HttpStatus.CREATED, "Tạo lớp học thành công"),
     ENROLL_CLASS_SUCCESS(HttpStatus.OK, "Tham gia lớp học thành công"),
-    GET_CLASSES_SUCCESS(HttpStatus.OK, "Lấy danh sách lớp học thành công"),
     GET_CLASS_MEMBERS_SUCCESS(HttpStatus.OK, "Lấy danh sách thành viên lớp thành công"),
     GET_CLASS_MEMBER_SUCCESS(HttpStatus.OK, "Lấy thông tin thành viên lớp thành công"),
     GET_CLASSES_SUCCESS(HttpStatus.OK, "Lấy danh sách các lớp thành công"),
@@ -51,29 +50,11 @@ public enum SuccessCode {
     CREATE_LESSON_SESSION_SUCCESS(HttpStatus.OK, "Tạo ca học thành công"),
     GET_COURSES_SUCCESS(HttpStatus.OK, "Lấy danh sách môn học thành công"),
     GET_COURSE_SUCCESS(HttpStatus.OK, "Lấy thông tin môn học thành công"),
-    GET_USER_COURSES_SUCCESS(HttpStatus.OK, "Lấy danh sách môn học của người dùng thành công"),
     CREATE_COURSE_SUCCESS(HttpStatus.CREATED, "Tạo môn học thành công"),
     UPDATE_COURSE_SUCCESS(HttpStatus.OK, "Cập nhật môn học thành công"),
     UPDATE_ANNOUNCEMENT_SUCCESS(HttpStatus.OK, "Cập nhật trạng thái thông báo thành công"),
     DELETE_COURSE_SUCCESS(HttpStatus.OK, "Xóa (ẩn) môn học thành công"),
-    RESTORE_COURSE_SUCCESS(HttpStatus.OK, "Khôi phục môn học thành công"),
-    GET_CLASS_COURSES_SUCCESS(HttpStatus.OK, "Lấy danh sách môn học của lớp thành công"),
-    ASSIGN_COURSE_TO_CLASS_SUCCESS(HttpStatus.CREATED, "Gán môn học vào lớp thành công"),
-    BATCH_ASSIGN_COURSES_SUCCESS(HttpStatus.OK, "Gán nhiều môn học vào lớp hoàn tất"),
-
-    // Question Module
-    GET_QUESTIONS_SUCCESS(HttpStatus.OK, "Lấy danh sách câu hỏi thành công"),
-    GET_QUESTION_DETAIL_SUCCESS(HttpStatus.OK, "Lấy thông tin chi tiết câu hỏi thành công"),
-    CREATE_QUESTION_SUCCESS(HttpStatus.CREATED, "Tạo câu hỏi thành công"),
-    UPDATE_QUESTION_SUCCESS(HttpStatus.OK, "Cập nhật câu hỏi thành công"),
-    DELETE_QUESTION_SUCCESS(HttpStatus.OK, "Xóa câu hỏi thành công"),
-
-    // Question Concept Module
-    GET_CONCEPTS_SUCCESS(HttpStatus.OK, "Lấy danh sách khái niệm kiến thức thành công"),
-    GET_CONCEPT_SUCCESS(HttpStatus.OK, "Lấy chi tiết khái niệm kiến thức thành công"),
-    CONCEPT_CREATED(HttpStatus.CREATED, "Tạo khái niệm kiến thức thành công"),
-    CONCEPT_UPDATED(HttpStatus.OK, "Cập nhật khái niệm kiến thức thành công"),
-    CONCEPT_DELETED(HttpStatus.OK, "Xóa khái niệm kiến thức thành công");
+    RESTORE_COURSE_SUCCESS(HttpStatus.OK, "Khôi phục môn học thành công");
 
     private final HttpStatus status;
     private final String message;

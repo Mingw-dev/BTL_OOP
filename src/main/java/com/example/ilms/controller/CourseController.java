@@ -4,7 +4,6 @@ import com.example.ilms.constant.SuccessCode;
 import com.example.ilms.dto.common.PageResponse;
 import com.example.ilms.dto.course.CourseCreateRequestDTO;
 import com.example.ilms.dto.course.CourseResponseDTO;
-import com.example.ilms.dto.course.UserCourseResponseDTO;
 import com.example.ilms.dto.response.ApiResponse;
 import com.example.ilms.entity.User;
 import com.example.ilms.service.CourseService;
@@ -13,8 +12,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/courses")
@@ -49,49 +46,5 @@ public class CourseController {
                 search, status, isArchived, page, size, currentUser);
 
         return ApiResponse.of(SuccessCode.GET_COURSES_SUCCESS, result);
-    }
-
-    @GetMapping("/users/{userId}")
-    public ApiResponse<PageResponse<UserCourseResponseDTO>> getCoursesByUser(
-            @PathVariable UUID userId,
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size,
-            @AuthenticationPrincipal User currentUser) {
-
-        PageResponse<UserCourseResponseDTO> result = courseService.getCoursesByUser(
-                userId, page, size, currentUser);
-
-        return ApiResponse.of(SuccessCode.GET_USER_COURSES_SUCCESS, result);
-    }
-
-    @GetMapping("/{id}")
-    public ApiResponse<CourseResponseDTO> getCourseById(
-            @PathVariable UUID id,
-            @AuthenticationPrincipal User currentUser) {
-
-        return ApiResponse.of(
-                SuccessCode.GET_COURSE_SUCCESS,
-                courseService.getCourseById(id, currentUser)
-        );
-    }
-
-    @DeleteMapping("/{id}/soft")
-    public ApiResponse<Void> softDeleteCourse(
-            @PathVariable UUID id,
-            @AuthenticationPrincipal User currentUser) {
-
-        courseService.softDeleteCourse(id, currentUser);
-        return ApiResponse.of(SuccessCode.DELETE_COURSE_SUCCESS, null);
-    }
-
-    @PatchMapping("/{id}/restore")
-    public ApiResponse<CourseResponseDTO> restoreCourse(
-            @PathVariable UUID id,
-            @AuthenticationPrincipal User currentUser) {
-
-        return ApiResponse.of(
-                SuccessCode.RESTORE_COURSE_SUCCESS,
-                courseService.restoreCourse(id, currentUser)
-        );
     }
 }
