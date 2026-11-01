@@ -9,7 +9,6 @@ import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 import java.time.LocalDateTime;
-import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -30,9 +29,6 @@ public class ClassEntity {
 
     @Column(name = "visibility")
     private String visibility;
-
-    @Column(name = "is_archived", columnDefinition = "boolean default false")
-    private Boolean isArchived = false;
 
     @Column(name = "thumbnail_url")
     private String thumbnailUrl;
@@ -60,9 +56,6 @@ public class ClassEntity {
 
     @Column(name = "end_at")
     private LocalDateTime endAt;
-
-    @OneToMany(mappedBy = "classEntity", fetch = FetchType.LAZY)
-    private List<ClassMember> members;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)

@@ -1,7 +1,9 @@
 -- Migration: create_assignments_table
 CREATE TABLE assignments (
                              id BINARY(16) NOT NULL,
+                             class_id BINARY(16) NOT NULL,              -- Giao cho lớp nào
                              lesson_id BINARY(16) NULL,                 -- Gắn với bài học cụ thể (nếu có, có thể NULL)
+                             created_by BINARY(16) NOT NULL,            -- Người tạo bài tập (users)
                              title VARCHAR(255) NOT NULL,               -- Tiêu đề bài tập
                              description TEXT NULL,                     -- Yêu cầu chi tiết
                              max_score DECIMAL(5, 2) DEFAULT 10.00,     -- Thang điểm tối đa
@@ -13,11 +15,20 @@ CREATE TABLE assignments (
 
                              CONSTRAINT pk_assignments PRIMARY KEY (id),
 
+                             CONSTRAINT fk_assignments_class FOREIGN KEY (class_id)
+                                 REFERENCES classes (id)
+                                 ON DELETE CASCADE
+                                 ON UPDATE CASCADE,
+
                              CONSTRAINT fk_assignments_lesson FOREIGN KEY (lesson_id)
                                  REFERENCES lessons (id)
                                  ON DELETE SET NULL
-                                 ON UPDATE CASCADE
+                                 ON UPDATE CASCADE,
 
+                             CONSTRAINT fk_assignments_creator FOREIGN KEY (created_by)
+                                 REFERENCES users (id)
+                                 ON DELETE RESTRICT
+                                 ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
-CREATE INDEX idx_assignments_class_due ON assignments (id, due_date);
+CREATE INDEX idx_assignments_class_due ON assignments (class_id, due_date);
