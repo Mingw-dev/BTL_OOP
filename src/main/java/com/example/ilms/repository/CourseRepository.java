@@ -39,4 +39,56 @@ public interface CourseRepository extends JpaRepository<Course, UUID> {
             @Param("visibility") String visibility,
             @Param("status") Boolean status
     );
+
+    // Lấy danh sách (LỚP + MÔN HỌC) mà 1 user đang tham gia.
+    // Mỗi dòng = 1 lớp user đang học (status ACTIVE) ghép với 1 môn được gán cho lớp đó (status ACTIVE).
+    @Query(value = "SELECT HEX(cl.id) AS classId, " +
+            "cl.name AS className, " +
+            "cl.class_code AS classCode, " +
+            "HEX(c.id) AS courseId, " +
+            "c.name AS name, " +
+            "c.description AS description, " +
+            "HEX(c.owner_id) AS ownerId, " +
+            "CAST(cm.joined_at AS CHAR) AS registeredAt " +
+            "FROM class_members cm " +
+            "JOIN classes cl ON cl.id = cm.class_id " +
+            "JOIN class_courses cc ON cc.class_id = cl.id " +
+            "JOIN courses c ON c.id = cc.course_id " +
+            "WHERE cm.user_id = UNHEX(REPLACE(:userId, '-', '')) " +
+            "AND cm.status = 'ACTIVE' " +
+            "AND cc.status = 'ACTIVE' " +
+            "AND cl.deleted_at IS NULL " +
+            "AND c.deleted_at IS NULL " +
+            "ORDER BY cm.joined_at DESC, cl.name ASC, c.name ASC " +
+            "LIMIT :limit OFFSET :offset",
+            nativeQuery = true)
+    List<UserCourseProjection> findUserCourses(
+            @Param("userId") String userId,
+            @Param("limit") int limit,
+            @Param("offset") int offset
+    );
+
+    @Query(value = "SELECT COUNT(*) " +
+            "FROM class_members cm " +
+            "JOIN classes cl ON cl.id = cm.class_id " +
+            "JOIN class_courses cc ON cc.class_id = cl.id " +
+            "JOIN courses c ON c.id = cc.course_id " +
+            "WHERE cm.user_id = UNHEX(REPLACE(:userId, '-', '')) " +
+            "AND cm.status = 'ACTIVE' " +
+            "AND cc.status = 'ACTIVE' " +
+            "AND cl.deleted_at IS NULL " +
+            "AND c.deleted_at IS NULL",
+            nativeQuery = true)
+    long countUserCourses(@Param("userId") String userId);
+
+    interface UserCourseProjection {
+        String getClassId();
+        String getClassName();
+        String getClassCode();
+        String getCourseId();
+        String getName();
+        String getDescription();
+        String getOwnerId();
+        String getRegisteredAt();
+    }
 }
