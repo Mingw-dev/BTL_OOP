@@ -52,8 +52,10 @@ public enum ErrorCode {
     CONCEPT_NOT_FOUND(HttpStatus.NOT_FOUND, "Nhãn kiến thức không tồn tại trong hệ thống"),
     INVALID_QUESTION_DATA(HttpStatus.BAD_REQUEST, "Dữ liệu đầu vào của câu hỏi không hợp lệ"),
     MISSING_CORRECT_ANSWER(HttpStatus.BAD_REQUEST, "Câu hỏi bắt buộc phải có đáp án đúng"),
-    QUESTION_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "Câu hỏi này đã bị vô hiệu hóa hoặc không còn hoạt động");
+    QUESTION_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "Câu hỏi này đã bị vô hiệu hóa hoặc không còn hoạt động"),
 
+    // Question Concept Errors
+    CONCEPT_ALREADY_EXISTS(HttpStatus.CONFLICT, "Câu hỏi này đã được gắn nhãn kiến thức này rồi");
 
     private final HttpStatus status;
     private final String message;
