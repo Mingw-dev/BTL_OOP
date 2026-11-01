@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 public enum ErrorCode {
+
     // Auth
     USER_EXISTED(HttpStatus.CONFLICT, "Tên tài khoản đã tồn tại"),
     EMAIL_EXISTED(HttpStatus.CONFLICT, "Email đã được đăng ký"),
@@ -16,6 +17,7 @@ public enum ErrorCode {
     INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "Token không hợp lệ hoặc đã hết hạn"),
     INVALID_CREDENTIALS(HttpStatus.UNAUTHORIZED, "Email hoặc mật khẩu không chính xác"),
     USER_DISABLED(HttpStatus.FORBIDDEN, "Tài khoản của bạn đã bị khóa"),
+
     // Class
     CLASS_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy lớp học"),
     CLASS_MEMBER_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy thành viên trong lớp học"),
@@ -27,6 +29,7 @@ public enum ErrorCode {
     CLASS_OWNER_ROLE_CANNOT_CHANGE(HttpStatus.CONFLICT, "Không thể thay đổi vai trò của chủ sở hữu lớp học"),
     CLASS_OWNER_CANNOT_BE_REMOVED(HttpStatus.CONFLICT, "Không thể xóa chủ sở hữu khỏi lớp học"),
     CLASS_MEMBER_CANNOT_LEAVE(HttpStatus.CONFLICT, "Giảng viên hoặc chủ sở hữu không thể tự rời lớp học"),
+
     // Invitation
     INVITATION_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy lời mời"),
     INVITATION_ALREADY_EXISTS(HttpStatus.CONFLICT, "Lời mời đang chờ xử lý đã tồn tại"),
@@ -34,20 +37,42 @@ public enum ErrorCode {
     INVITATION_EXPIRED(HttpStatus.GONE, "Lời mời đã hết hạn"),
     INVITATION_EMAIL_MISMATCH(HttpStatus.FORBIDDEN, "Lời mời này không dành cho tài khoản hiện tại"),
     INVALID_INVITATION_ROLE(HttpStatus.BAD_REQUEST, "Vai trò trong lời mời không hợp lệ"),
-    //    TOKEN
+
+    // Token
     INVALID_OR_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "Mã không hợp lệ hoặc đã hết hạn"),
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Mã đã hết hạn"),
-    // LessonSession
-    INVAILD_LESSONSESSION(HttpStatus.OK, "Ca học không hợp lệ"),
+
     // Course
     COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy môn học"),
-    // Annoucement
-    ANNOUNCEMENT_NOT_FOUND(HttpStatus.OK, "Thông báo không tồn tại"),
-    //Room
-    SESSION_NOT_FOUND(HttpStatus.OK, "Ca học không tồn tại"),
-    TEACHER_SCHEDULE_CONFLICT(HttpStatus.OK, "Giáo viên bị trùng lịch"),
-    ROOM_NOT_FOUND(HttpStatus.OK, "Phòng học không tồn tại"),
+    COURSE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "Bạn không có quyền xem môn học của người dùng này"),
+    COURSE_ALREADY_ASSIGNED(HttpStatus.CONFLICT, "Môn học đã được gán cho lớp này"),
+    INVALID_DATE_RANGE(HttpStatus.BAD_REQUEST, "Ngày kết thúc phải sau hoặc bằng ngày bắt đầu"),
+    COURSE_FORBIDDEN(HttpStatus.FORBIDDEN, "Bạn không có quyền xóa môn học này"),
+    COURSE_RESTORE_FORBIDDEN(HttpStatus.FORBIDDEN, "Bạn không có quyền khôi phục môn học"),
+    COURSE_NOT_DELETED(HttpStatus.BAD_REQUEST, "Môn học chưa bị xóa nên không thể khôi phục"),
+
+    // Question
+    QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy câu hỏi hoặc câu hỏi đã bị xóa"),
+    CONCEPT_NOT_FOUND(HttpStatus.NOT_FOUND, "Nhãn kiến thức không tồn tại trong hệ thống"),
+    INVALID_QUESTION_DATA(HttpStatus.BAD_REQUEST, "Dữ liệu đầu vào của câu hỏi không hợp lệ"),
+    MISSING_CORRECT_ANSWER(HttpStatus.BAD_REQUEST, "Câu hỏi bắt buộc phải có đáp án đúng"),
+    QUESTION_ALREADY_DELETED(HttpStatus.BAD_REQUEST, "Câu hỏi này đã bị vô hiệu hóa hoặc không còn hoạt động"),
+
+    // Question Concept
+    CONCEPT_ALREADY_EXISTS(HttpStatus.CONFLICT, "Câu hỏi này đã được gắn nhãn kiến thức này rồi"),
+
+    // Lesson Session
+    INVAILD_LESSONSESSION(HttpStatus.BAD_REQUEST, "Ca học không hợp lệ"),
+    SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "Ca học không tồn tại"),
+    TEACHER_SCHEDULE_CONFLICT(HttpStatus.CONFLICT, "Giáo viên bị trùng lịch"),
+
+    // Announcement
+    ANNOUNCEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Thông báo không tồn tại"),
+
+    // Room
+    ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "Phòng học không tồn tại"),
     ROOM_SCHEDULE_CONFLICT(HttpStatus.CONFLICT, "Phòng học bị trùng");
+
     private final HttpStatus status;
     private final String message;
 
