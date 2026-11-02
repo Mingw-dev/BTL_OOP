@@ -67,6 +67,7 @@ public enum SuccessCode {
     UPDATE_COURSE_SUCCESS(HttpStatus.OK, "Cập nhật môn học thành công"),
     DELETE_COURSE_SUCCESS(HttpStatus.OK, "Xóa (ẩn) môn học thành công"),
     RESTORE_COURSE_SUCCESS(HttpStatus.OK, "Khôi phục môn học thành công"),
+    UPDATE_COURSE_INSTRUCTOR_SUCCESS(HttpStatus.OK, "Cập nhật giảng viên môn học thành công"),
 
     // Class Course Module
     GET_CLASS_COURSES_SUCCESS(HttpStatus.OK, "Lấy danh sách môn học của lớp thành công"),

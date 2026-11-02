@@ -150,6 +150,30 @@ public class CourseService {
         return toResponseDTO(restoredCourse);
     }
 
+    // Đổi giảng viên (owner) phụ trách một môn học. Chỉ Admin được thực hiện.
+    @Transactional
+    public CourseResponseDTO updateInstructor(UUID id, UUID instructorId, User currentUser) {
+        boolean isAdmin = currentUser.getRole() != null
+                && "ROLE_ADMIN".equals(currentUser.getRole().getCode());
+
+        // Kiểm tra quyền trước, để user thường không dò được môn nào tồn tại
+        if (!isAdmin) {
+            throw new AppException(ErrorCode.COURSE_INSTRUCTOR_FORBIDDEN);
+        }
+
+        Course course = courseRepository.findById(id)
+                .filter(c -> c.getDeletedAt() == null)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        User instructor = userRepository.findById(instructorId)
+                .orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
+
+        course.setOwner(instructor);
+        Course updated = courseRepository.save(course);
+
+        return toResponseDTO(updated);
+    }
+
     // Lấy danh sách (lớp + môn học) mà 1 user đang tham gia
     public PageResponse<UserCourseResponseDTO> getCoursesByUser(
             UUID userId,

@@ -4,6 +4,7 @@ import com.example.ilms.constant.SuccessCode;
 import com.example.ilms.dto.common.PageResponse;
 import com.example.ilms.dto.course.CourseCreateRequestDTO;
 import com.example.ilms.dto.course.CourseResponseDTO;
+import com.example.ilms.dto.course.UpdateCourseInstructorRequestDTO;
 import com.example.ilms.dto.course.UserCourseResponseDTO;
 import com.example.ilms.dto.response.ApiResponse;
 import com.example.ilms.entity.User;
@@ -93,5 +94,17 @@ public class CourseController {
                 SuccessCode.RESTORE_COURSE_SUCCESS,
                 courseService.restoreCourse(id, currentUser)
         );
+    }
+
+    @PatchMapping("/{id}/instructor")
+    public ApiResponse<CourseResponseDTO> updateCourseInstructor(
+            @PathVariable UUID id,
+            @RequestBody @Valid UpdateCourseInstructorRequestDTO requestDTO,
+            @AuthenticationPrincipal User currentUser) {
+
+        CourseResponseDTO result = courseService.updateInstructor(
+                id, requestDTO.getInstructorId(), currentUser);
+
+        return ApiResponse.of(SuccessCode.UPDATE_COURSE_INSTRUCTOR_SUCCESS, result);
     }
 }
