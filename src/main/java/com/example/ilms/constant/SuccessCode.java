@@ -23,6 +23,12 @@ public enum SuccessCode {
     UPDATE_PROFILE_SUCCESS(HttpStatus.OK, "Cập nhật hồ sơ thành công"),
     CREATE_USER_SUCCESS(HttpStatus.OK, "Tạo người dùng mới thành công"),
 
+    // Assignment Module
+    GET_ASSIGNMENTS_SUCCESS(HttpStatus.OK, "Lấy danh sách bài tập thành công"),
+    GET_ASSIGNMENT_SUCCESS(HttpStatus.OK, "Lấy thông tin bài tập thành công"),
+    CREATE_ASSIGNMENT_SUCCESS(HttpStatus.CREATED, "Tạo bài tập thành công"),
+    UPDATE_ASSIGNMENT_SUCCESS(HttpStatus.OK, "Cập nhật bài tập thành công"),
+
     // Class Module
     CLASS_CREATED(HttpStatus.CREATED, "Tạo lớp học thành công"),
     ENROLL_CLASS_SUCCESS(HttpStatus.OK, "Tham gia lớp học thành công"),
