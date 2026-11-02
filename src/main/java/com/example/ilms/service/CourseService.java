@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import com.example.ilms.dto.common.PageResponse;
 import com.example.ilms.dto.course.CourseCreateRequestDTO;
 import com.example.ilms.dto.course.CourseResponseDTO;
+import com.example.ilms.dto.course.CourseUpdateRequestDTO;
 import com.example.ilms.dto.course.UserCourseResponseDTO;
 import com.example.ilms.entity.Course;
 import com.example.ilms.entity.User;
@@ -11,11 +12,13 @@ import com.example.ilms.exception.AppException;
 import com.example.ilms.exception.ErrorCode;
 import com.example.ilms.repository.CourseRepository;
 import com.example.ilms.repository.UserRepository;
+import com.example.ilms.type.Visibility;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -105,6 +108,49 @@ public class CourseService {
         }
 
         return toResponseDTO(course);
+    }
+
+    // Cập nhật thông tin cơ bản của môn học (name/description/visibility).
+    @Transactional
+    public CourseResponseDTO updateCourse(UUID id, CourseUpdateRequestDTO request, User currentUser) {
+        Course course = courseRepository.findById(id)
+                .filter(c -> c.getDeletedAt() == null)
+                .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
+
+        boolean isAdmin = currentUser.getRole() != null
+                && "ROLE_ADMIN".equals(currentUser.getRole().getCode());
+
+        boolean isOwner = course.getOwner() != null
+                && course.getOwner().getId().equals(currentUser.getId());
+
+        if (!isAdmin && !isOwner) {
+            throw new AppException(ErrorCode.COURSE_UPDATE_FORBIDDEN);
+        }
+
+        if (request.getName() != null) {
+            if (request.getName().isBlank()) {
+                throw new AppException(ErrorCode.INVALID_COURSE_DATA);
+            }
+            course.setName(request.getName().trim());
+        }
+
+        if (request.getDescription() != null) {
+            course.setDescription(request.getDescription());
+        }
+
+        if (request.getVisibility() != null) {
+            String normalizedVisibility = request.getVisibility().trim().toUpperCase();
+            boolean isValidVisibility = Arrays.stream(Visibility.values())
+                    .anyMatch(v -> v.name().equals(normalizedVisibility));
+
+            if (!isValidVisibility) {
+                throw new AppException(ErrorCode.INVALID_COURSE_DATA);
+            }
+            course.setVisibility(normalizedVisibility);
+        }
+
+        Course updated = courseRepository.save(course);
+        return toResponseDTO(updated);
     }
 
     @Transactional
