@@ -1,30 +1,29 @@
 package com.example.ilms.service;
 
-import com.example.ilms.dto.common.PageResponse;
-import com.example.ilms.specification.ClassSpecification;
 import com.example.ilms.dto.classDTO.ClassCreateRequestDTO;
 import com.example.ilms.dto.classDTO.ClassResponseDTO;
+import com.example.ilms.dto.common.PageResponse;
 import com.example.ilms.entity.ClassEntity;
 import com.example.ilms.entity.ClassMember;
 import com.example.ilms.entity.User;
 import com.example.ilms.exception.AppException;
+import com.example.ilms.exception.ErrorCode;
 import com.example.ilms.repository.ClassMemberRepository;
 import com.example.ilms.repository.ClassRepository;
 import com.example.ilms.repository.UserRepository;
 import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.jpa.domain.Specification;
-import java.util.List;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import org.springframework.data.domain.Pageable;
+import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
-
 public class ClassService {
 
     private final ClassRepository classRepository;
@@ -74,50 +73,61 @@ public class ClassService {
 
         return code;
     }
-
     @Transactional(readOnly = true)
-    public PageResponse<ClassResponseDTO> getClasses(
-            String search, String status, UUID semesterId, Boolean isArchived,
-            int page, int size, String sort, User currentUser
-    ){
-        //check quyền Admin
-        boolean isAdmin = currentUser.getRole() != null &&
-                "ROLE_ADMIN".equals(currentUser.getRole().getCode());
+    public PageResponse<ClassResponseDTO> getClasses(String search, String visibility, int page, int size, User currentUser) {
+        // Khởi tạo đối tượng phân trang, sắp xếp theo thời gian (nếu Entity có trường createdAt hoặc startAt)
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
-        // Xử lý Sắp xếp(sort)
-        Sort pageSort  = Sort.unsorted();
-        if (sort != null && !sort.isEmpty()) {
-            String[] sortParams = sort.split(",");
-            String sortBy = sortParams[0];
-            Sort.Direction direction = sortParams.length > 1 && sortParams[1].equalsIgnoreCase("desc")
-                    ? Sort.Direction.DESC
-                    : Sort.Direction.ASC;
-            pageSort = Sort.by(direction, sortBy);
+        // Gọi hàm HQL từ Repository để lọc dữ liệu
+        Page<ClassEntity> classPage = classRepository.findClassesWithFilter(search, visibility, currentUser.getId(), pageable);
+
+        List<ClassResponseDTO> content = classPage.getContent().stream()
+                .map(entity -> {
+                    ClassResponseDTO dto = modelMapper.map(entity, ClassResponseDTO.class);
+                    if (entity.getOwner() != null) {
+                        dto.setOwnerId(entity.getOwner().getId());
+                    }
+                    return dto;
+                })
+                .collect(Collectors.toList());
+
+        return PageResponse.<ClassResponseDTO>builder()
+                .items(content)
+                .pageNumber(classPage.getNumber())
+                .pageSize(classPage.getSize())
+                .totalElements(classPage.getTotalElements())
+                .totalPages(classPage.getTotalPages())
+                .isLast(classPage.isLast())
+                .build();
+    }
+    @Transactional(readOnly = true)
+    public ClassResponseDTO getClassById(UUID classId, User currentUser) {
+        ClassEntity classEntity = classRepository.findById(classId)
+                .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
+        boolean isMember = classMemberRepository.existsByClassEntityIdAndUserId(classId, currentUser.getId());
+        if (!isMember) {
+            throw new AppException(ErrorCode.CLASS_ACCESS_DENIED);
+        }
+        ClassResponseDTO response = modelMapper.map(classEntity, ClassResponseDTO.class);
+        if (classEntity.getOwner() != null) {
+            response.setOwnerId(classEntity.getOwner().getId());
+        }
+        return response;
+    }
+
+    @Transactional
+    public void updateClassStatus(UUID classId, boolean isClosed, User currentUser) {
+        ClassEntity classEntity = classRepository.findById(classId)
+                .orElseThrow(() -> new AppException(ErrorCode.CLASS_NOT_FOUND));
+
+        // Kiểm tra quyền: Chỉ giảng viên tạo lớp mới được thao tác
+        if (!classEntity.getOwner().getId().equals(currentUser.getId())) {
+            // Thay bằng ErrorCode tương ứng trong file ErrorCode của bạn (VD: UNAUTHORIZED_ACCESS)
+            throw new AppException(ErrorCode.CLASS_ACCESS_DENIED);
         }
 
-        //Xử lý phân trang
-        Pageable pageable = PageRequest.of(page > 0 ? page - 1 : 0, size, pageSort);
-
-        Specification<ClassEntity> spec = ClassSpecification.filterClass(
-                search, status, semesterId, isArchived, currentUser, isAdmin
-        );
-
-        //  Truy vấn cơ sở dữ liệu
-        Page<ClassEntity> classPage = classRepository.findAll(spec, pageable);
-
-        //  Dùng ModelMapper để chuyển danh sách ClassEntity sang ClassResponseDTO
-        List<ClassResponseDTO> dtoList = classPage.getContent().stream()
-                .map(entity -> modelMapper.map(entity, ClassResponseDTO.class))
-                .toList();
-
-        // Bọc kết quả vào PageResponse trả về cho Client
-        return new PageResponse<>(
-                dtoList,                       // 1. Danh sách items (List<T>)
-                classPage.getNumber() + 1,     // 2. pageNumber (int)
-                classPage.getSize(),           // 3. pageSize (int)
-                classPage.getTotalElements(),  // 4. totalElements (long)
-                classPage.getTotalPages(),     // 5. totalPages (int)
-                classPage.isLast()             // 6. isLast (boolean)
-        );
+        // Đảm bảo ClassEntity của bạn có trường isClosed và hàm setClosed()
+        classEntity.setIsCodeActive(isClosed);
+        classRepository.save(classEntity);
     }
 }

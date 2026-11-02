@@ -39,4 +39,5 @@ public interface ClassMemberRepository extends JpaRepository<ClassMember, UUID> 
             @Param("search") String search,
             Pageable pageable
     );
+    boolean existsByClassEntityIdAndUserId(UUID classId, UUID userId);
 }

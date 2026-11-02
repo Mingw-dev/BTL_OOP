@@ -8,7 +8,8 @@ build:
 
 test:
 	./gradlew test
-
+run:
+    ./gradlew bootRun
 migrate:
 	./gradlew createMigration -Pname=$(name)
 unmigrate:
