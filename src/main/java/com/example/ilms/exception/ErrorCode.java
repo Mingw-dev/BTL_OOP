@@ -51,6 +51,8 @@ public enum ErrorCode {
     COURSE_RESTORE_FORBIDDEN(HttpStatus.FORBIDDEN, "Bạn không có quyền khôi phục môn học"),
     COURSE_NOT_DELETED(HttpStatus.BAD_REQUEST, "Môn học chưa bị xóa nên không thể khôi phục"),
     COURSE_INSTRUCTOR_FORBIDDEN(HttpStatus.FORBIDDEN, "Bạn không có quyền thay đổi giảng viên của môn học này"),
+    COURSE_UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "Bạn không có quyền cập nhật môn học này"),
+    INVALID_COURSE_DATA(HttpStatus.BAD_REQUEST, "Dữ liệu cập nhật môn học không hợp lệ"),
 
     // Question
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy câu hỏi hoặc câu hỏi đã bị xóa"),

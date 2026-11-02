@@ -4,6 +4,7 @@ import com.example.ilms.constant.SuccessCode;
 import com.example.ilms.dto.common.PageResponse;
 import com.example.ilms.dto.course.CourseCreateRequestDTO;
 import com.example.ilms.dto.course.CourseResponseDTO;
+import com.example.ilms.dto.course.CourseUpdateRequestDTO;
 import com.example.ilms.dto.course.UpdateCourseInstructorRequestDTO;
 import com.example.ilms.dto.course.UserCourseResponseDTO;
 import com.example.ilms.dto.response.ApiResponse;
@@ -74,6 +75,17 @@ public class CourseController {
                 SuccessCode.GET_COURSE_SUCCESS,
                 courseService.getCourseById(id, currentUser)
         );
+    }
+
+    @PutMapping("/{id}")
+    @PatchMapping("/{id}")
+    public ApiResponse<CourseResponseDTO> updateCourse(
+            @PathVariable UUID id,
+            @RequestBody @Valid CourseUpdateRequestDTO requestDTO,
+            @AuthenticationPrincipal User currentUser) {
+
+        CourseResponseDTO result = courseService.updateCourse(id, requestDTO, currentUser);
+        return ApiResponse.of(SuccessCode.UPDATE_COURSE_SUCCESS, result);
     }
 
     @DeleteMapping("/{id}/soft")

@@ -43,45 +43,44 @@ public class ClassCourseService {
 
     // ===================== GET: môn học của một lớp =====================
 
-//    Comment tạm để lát sau push code lên
-//    @Transactional(readOnly = true)
-//    public PageResponse<ClassCourseResponseDTO> getCoursesByClass(
-//            UUID classId, String status, String semester,
-//            int page, int size, User currentUser) {
-//
-//        ClassEntity cls = findActiveClass(classId);
-//
-//        if (!isAdmin(currentUser)) {
-//            boolean isActiveMember = classMemberRepository
-//                    .findByClassEntity_IdAndUser_Id(cls.getId(), currentUser.getId())
-//                    .map(ClassMember::getStatus)
-//                    .map("ACTIVE"::equals)
-//                    .orElse(false);
-//            if (!isActiveMember) {
-//                throw new AppException(ErrorCode.CLASS_ACCESS_DENIED);
-//            }
-//        }
-//
-//        int safePage = Math.max(page, 0);
-//        int safeSize = size < 1 ? 10 : Math.min(size, 100);
-//
-//        Page<ClassCourse> result = classCourseRepository.findByClass(
-//                classId,
-//                normalize(status) == null ? null : normalize(status).toUpperCase(),
-//                normalize(semester),
-//                PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.DESC, "assignedAt")));
-//
-//        return PageResponse.<ClassCourseResponseDTO>builder()
-//                .items(result.getContent().stream().map(this::toDTO).toList())
-//                .pageNumber(safePage)
-//                .pageSize(safeSize)
-//                .totalElements(result.getTotalElements())
-//                .totalPages(result.getTotalPages())
-//                .isLast(result.isLast())
-//                .build();
-//    }
-//
-//    // ===================== POST: gán một môn =====================
+    @Transactional(readOnly = true)
+    public PageResponse<ClassCourseResponseDTO> getCoursesByClass(
+            UUID classId, String status, String semester,
+            int page, int size, User currentUser) {
+
+        ClassEntity cls = findActiveClass(classId);
+
+        if (!isAdmin(currentUser)) {
+            boolean isActiveMember = classMemberRepository
+                    .findByClassEntity_IdAndUser_Id(cls.getId(), currentUser.getId())
+                    .map(ClassMember::getStatus)
+                    .map("ACTIVE"::equals)
+                    .orElse(false);
+            if (!isActiveMember) {
+                throw new AppException(ErrorCode.CLASS_ACCESS_DENIED);
+            }
+        }
+
+        int safePage = Math.max(page, 0);
+        int safeSize = size < 1 ? 10 : Math.min(size, 100);
+
+        Page<ClassCourse> result = classCourseRepository.findByClass(
+                classId,
+                normalize(status) == null ? null : normalize(status).toUpperCase(),
+                normalize(semester),
+                PageRequest.of(safePage, safeSize, Sort.by(Sort.Direction.DESC, "assignedAt")));
+
+        return PageResponse.<ClassCourseResponseDTO>builder()
+                .items(result.getContent().stream().map(this::toDTO).toList())
+                .pageNumber(safePage)
+                .pageSize(safeSize)
+                .totalElements(result.getTotalElements())
+                .totalPages(result.getTotalPages())
+                .isLast(result.isLast())
+                .build();
+    }
+
+    // ===================== POST: gán một môn =====================
 
     @Transactional
     public ClassCourseResponseDTO assignCourse(UUID classId, AssignCourseToClassRequestDTO request) {
