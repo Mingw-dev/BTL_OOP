@@ -50,6 +50,7 @@ public enum ErrorCode {
     COURSE_FORBIDDEN(HttpStatus.FORBIDDEN, "Bạn không có quyền xóa môn học này"),
     COURSE_RESTORE_FORBIDDEN(HttpStatus.FORBIDDEN, "Bạn không có quyền khôi phục môn học"),
     COURSE_NOT_DELETED(HttpStatus.BAD_REQUEST, "Môn học chưa bị xóa nên không thể khôi phục"),
+    COURSE_INSTRUCTOR_FORBIDDEN(HttpStatus.FORBIDDEN, "Bạn không có quyền thay đổi giảng viên của môn học này"),
 
     // Question
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy câu hỏi hoặc câu hỏi đã bị xóa"),
