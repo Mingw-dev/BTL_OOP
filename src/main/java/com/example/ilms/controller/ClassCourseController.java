@@ -25,19 +25,19 @@ public class ClassCourseController {
 
     private final ClassCourseService classCourseService;
 
-//    @GetMapping
-//    public ApiResponse<PageResponse<ClassCourseResponseDTO>> getCoursesByClass(
-//            @PathVariable UUID classId,
-//            @RequestParam(required = false) String status,
-//            @RequestParam(required = false) String semester,
-//            @RequestParam(defaultValue = "0") int page,
-//            @RequestParam(defaultValue = "10") int size,
-//            @AuthenticationPrincipal User currentUser) {
-//
-//        return ApiResponse.of(
-//                SuccessCode.GET_CLASS_COURSES_SUCCESS,
-//                classCourseService.getCoursesByClass(classId, status, semester, page, size, currentUser));
-//    }
+    @GetMapping
+    public ApiResponse<PageResponse<ClassCourseResponseDTO>> getCoursesByClass(
+            @PathVariable UUID classId,
+            @RequestParam(required = false) String status,
+            @RequestParam(required = false) String semester,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @AuthenticationPrincipal User currentUser) {
+
+        return ApiResponse.of(
+                SuccessCode.GET_CLASS_COURSES_SUCCESS,
+                classCourseService.getCoursesByClass(classId, status, semester, page, size, currentUser));
+    }
 
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
