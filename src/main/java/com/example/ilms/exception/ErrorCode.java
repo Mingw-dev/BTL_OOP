@@ -41,7 +41,11 @@ public enum ErrorCode {
     // Token
     INVALID_OR_EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "Mã không hợp lệ hoặc đã hết hạn"),
     TOKEN_EXPIRED(HttpStatus.UNAUTHORIZED, "Mã đã hết hạn"),
-
+    //Assignment
+    ASSIGNMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy bài tập"),
+    LESSON_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy bài học"),
+    ASSIGNMENT_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "Dữ liệu bài tập không hợp lệ"),
+    ASSIGNMENT_CONFLICT(HttpStatus.CONFLICT, "Trạng thái hoặc dữ liệu bài tập không cho phép thực hiện thao tác"),
     // Course
     COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy môn học"),
     COURSE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "Bạn không có quyền xem môn học của người dùng này"),
