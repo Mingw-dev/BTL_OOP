@@ -46,6 +46,16 @@ public enum ErrorCode {
     LESSON_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy bài học"),
     ASSIGNMENT_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "Dữ liệu bài tập không hợp lệ"),
     ASSIGNMENT_CONFLICT(HttpStatus.CONFLICT, "Trạng thái hoặc dữ liệu bài tập không cho phép thực hiện thao tác"),
+    // Submission Module
+    SUBMISSION_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy bài nộp"),
+    SUBMISSION_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "Dữ liệu bài nộp hoặc chấm điểm không hợp lệ"),
+    SUBMISSION_ALREADY_EXISTS(HttpStatus.CONFLICT, "Đã có bài nộp cho bài tập này"),
+    SUBMISSION_ALREADY_GRADED(HttpStatus.CONFLICT, "Bài nộp đã được chấm, không thể sửa hoặc hủy"),
+    SUBMISSION_ATTEMPTS_EXHAUSTED(HttpStatus.CONFLICT, "Đã hết lượt nộp bài"),
+    SUBMISSION_DEADLINE_PASSED(HttpStatus.CONFLICT, "Đã quá hạn thực hiện thao tác với bài nộp"),
+    SUBMISSION_CLASS_READ_ONLY(HttpStatus.CONFLICT, "Lớp đã lưu trữ hoặc liên kết môn học không còn ACTIVE"),
+    SUBMISSION_DATA_INCONSISTENT(HttpStatus.CONFLICT, "Dữ liệu bài tập, bài nộp hoặc kết quả chấm không nhất quán"),
+    SUBMISSION_WRITE_CONFLICT(HttpStatus.CONFLICT, "Không thể ghi kết quả do xung đột dữ liệu hoặc giao dịch"),
     // Course
     COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy môn học"),
     COURSE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "Bạn không có quyền xem môn học của người dùng này"),
