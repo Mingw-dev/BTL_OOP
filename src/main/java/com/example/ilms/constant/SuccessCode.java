@@ -28,7 +28,14 @@ public enum SuccessCode {
     GET_ASSIGNMENT_SUCCESS(HttpStatus.OK, "Lấy thông tin bài tập thành công"),
     CREATE_ASSIGNMENT_SUCCESS(HttpStatus.CREATED, "Tạo bài tập thành công"),
     UPDATE_ASSIGNMENT_SUCCESS(HttpStatus.OK, "Cập nhật bài tập thành công"),
-
+    // Submission Module
+    GET_SUBMISSIONS_SUCCESS(HttpStatus.OK, "Lấy danh sách bài nộp thành công"),
+    GET_SUBMISSION_SUCCESS(HttpStatus.OK, "Lấy bài nộp thành công"),
+    CREATE_SUBMISSION_SUCCESS(HttpStatus.CREATED, "Nộp bài thành công"),
+    UPDATE_SUBMISSION_SUCCESS(HttpStatus.OK, "Cập nhật bài nộp thành công"),
+    GRADE_SUBMISSION_SUCCESS(HttpStatus.OK, "Chấm bài thành công"),
+    BATCH_GRADE_SUBMISSIONS_SUCCESS(HttpStatus.OK, "Chấm bài theo batch thành công"),
+    BATCH_GRADE_SUBMISSIONS_PARTIAL_SUCCESS(HttpStatus.MULTI_STATUS, "Đã xử lý batch, có bài nộp không chấm được"),
     // Class Module
     CLASS_CREATED(HttpStatus.CREATED, "Tạo lớp học thành công"),
     ENROLL_CLASS_SUCCESS(HttpStatus.OK, "Tham gia lớp học thành công"),
