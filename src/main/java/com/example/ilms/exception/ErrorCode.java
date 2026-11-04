@@ -68,6 +68,11 @@ public enum ErrorCode {
     COURSE_UPDATE_FORBIDDEN(HttpStatus.FORBIDDEN, "Bạn không có quyền cập nhật môn học này"),
     INVALID_COURSE_DATA(HttpStatus.BAD_REQUEST, "Dữ liệu cập nhật môn học không hợp lệ"),
 
+    // Chapter
+    CHAPTER_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy chương học"),
+    CHAPTER_FORBIDDEN(HttpStatus.FORBIDDEN, "Bạn không có quyền quản lý chương học của môn học này"),
+    INVALID_CHAPTER_DATA(HttpStatus.BAD_REQUEST, "Dữ liệu chương học không hợp lệ"),
+
     // Question
     QUESTION_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy câu hỏi hoặc câu hỏi đã bị xóa"),
     CONCEPT_NOT_FOUND(HttpStatus.NOT_FOUND, "Nhãn kiến thức không tồn tại trong hệ thống"),
