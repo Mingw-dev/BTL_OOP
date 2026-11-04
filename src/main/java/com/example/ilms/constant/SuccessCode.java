@@ -93,6 +93,12 @@ public enum SuccessCode {
     ASSIGN_COURSE_TO_CLASS_SUCCESS(HttpStatus.CREATED, "Gán môn học vào lớp thành công"),
     BATCH_ASSIGN_COURSES_SUCCESS(HttpStatus.OK, "Gán nhiều môn học vào lớp hoàn tất"),
 
+    // Chapter Module
+    CREATE_CHAPTER_SUCCESS(HttpStatus.CREATED, "Tạo chương học thành công"),
+    GET_CHAPTERS_SUCCESS(HttpStatus.OK, "Lấy danh sách chương học thành công"),
+    GET_CHAPTER_SUCCESS(HttpStatus.OK, "Lấy thông tin chương học thành công"),
+    UPDATE_CHAPTER_SUCCESS(HttpStatus.OK, "Cập nhật chương học thành công"),
+
     // Question Module
     GET_QUESTIONS_SUCCESS(HttpStatus.OK, "Lấy danh sách câu hỏi thành công"),
     GET_QUESTION_DETAIL_SUCCESS(HttpStatus.OK, "Lấy thông tin chi tiết câu hỏi thành công"),
