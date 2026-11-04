@@ -30,19 +30,16 @@ public class ChapterService {
 
     @Transactional
     public ChapterResponseDTO createChapter(UUID courseId, ChapterCreateRequestDTO request, User currentUser) {
-        // Chặn sớm theo vai trò (trước khi tra DB) để người không có quyền không dò được môn học nào tồn tại
+
         assertAdminOrTeacher(currentUser);
 
         Course course = courseRepository.findById(courseId)
                 .orElseThrow(() -> new AppException(ErrorCode.COURSE_NOT_FOUND));
 
-        // Admin, hoặc giảng viên đồng thời là chủ môn học, mới được tạo chương
         if (!canManage(course, currentUser)) {
             throw new AppException(ErrorCode.CHAPTER_FORBIDDEN);
         }
 
-        // Không truyền orderIndex thì xếp vào cuối danh sách chương hiện có
-        // (môn chưa có chương nào: findMaxOrderIndexByCourseId trả -1 nên chương đầu có order_index = 0)
         Integer orderIndex = request.getOrderIndex();
         if (orderIndex == null) {
             orderIndex = chapterRepository.findMaxOrderIndexByCourseId(courseId) + 1;
@@ -81,12 +78,10 @@ public class ChapterService {
         boolean canManage = canManage(course, currentUser);
         assertCanView(course, canManage);
 
-        // Chỉ Admin/chủ môn học mới được xem cả chương đã xóa mềm
         boolean withDeleted = includeDeleted && canManage;
 
         List<Chapter> chapters = chapterRepository.findByCourseId(courseId, withDeleted);
 
-        // Một query đếm bài học cho toàn bộ chương của môn
         Map<UUID, Long> lessonCounts = new HashMap<>();
         for (ChapterRepository.LessonCountProjection row
                 : chapterRepository.countLessonsByCourseId(courseId.toString())) {
@@ -102,6 +97,7 @@ public class ChapterService {
                         .orderIndex(chapter.getOrderIndex())
                         .totalLessons(lessonCounts.getOrDefault(chapter.getId(), 0L).intValue())
                         .createdAt(chapter.getCreatedAt())
+                        .updatedAt(chapter.getUpdatedAt())
                         .deletedAt(chapter.getDeletedAt())
                         .build())
                 .toList();
@@ -118,7 +114,6 @@ public class ChapterService {
         boolean canManage = canManage(course, currentUser);
         assertCanView(course, canManage);
 
-        // Người thường không được thấy chương đã xóa mềm
         if (chapter.getDeletedAt() != null && !canManage) {
             throw new AppException(ErrorCode.CHAPTER_NOT_FOUND);
         }
@@ -131,7 +126,6 @@ public class ChapterService {
     public ChapterDetailResponseDTO updateChapter(
             UUID chapterId, ChapterUpdateRequestDTO request, User currentUser) {
 
-        // Chặn sớm theo vai trò (trước khi tra DB) để người không có quyền không dò được chương nào tồn tại
         assertAdminOrTeacher(currentUser);
 
         Chapter chapter = chapterRepository.findByIdWithCourse(chapterId)
@@ -144,7 +138,6 @@ public class ChapterService {
             throw new AppException(ErrorCode.CHAPTER_FORBIDDEN);
         }
 
-        // Chương đã xóa mềm thì không cho sửa
         if (chapter.getDeletedAt() != null) {
             throw new AppException(ErrorCode.CHAPTER_NOT_FOUND);
         }
@@ -160,7 +153,6 @@ public class ChapterService {
             chapter.setDescription(request.getDescription());
         }
 
-        // saveAndFlush để updatedAt (@UpdateTimestamp) được cập nhật trước khi trả về
         chapter = chapterRepository.saveAndFlush(chapter);
 
         return toDetailDTO(chapter, course);
@@ -182,7 +174,6 @@ public class ChapterService {
                 .build();
     }
 
-    // Chỉ Admin hoặc Giảng viên mới được tạo/sửa chương. Vai trò khác (ví dụ ROLE_USER) bị từ chối ngay.
     private void assertAdminOrTeacher(User user) {
         String role = roleName(user);
         if (!"ADMIN".equals(role) && !"TEACHER".equals(role)) {
@@ -190,10 +181,6 @@ public class ChapterService {
         }
     }
 
-    // Được quản lý chương khi:
-    //  - là Admin, hoặc
-    //  - là Giảng viên (ROLE_TEACHER) VÀ là chủ (owner) của môn học.
-    // Chỉ là owner thôi thì chưa đủ: owner có thể bị gán cho user thường qua PATCH /courses/{id}/instructor.
     private boolean canManage(Course course, User user) {
         String role = roleName(user);
         if ("ADMIN".equals(role)) {
@@ -206,7 +193,6 @@ public class ChapterService {
         return "TEACHER".equals(role) && isOwner;
     }
 
-    // Lấy tên role đã bỏ tiền tố ROLE_ ("ROLE_ADMIN" và "ADMIN" đều ra "ADMIN"), không phân biệt hoa thường
     private String roleName(User user) {
         if (user.getRole() == null || user.getRole().getCode() == null) {
             return "";
@@ -224,7 +210,6 @@ public class ChapterService {
         }
     }
 
-    // HEX() trả về 32 ký tự liền nhau, cần ghép lại dạng 8-4-4-4-12 để UUID.fromString đọc được
     private UUID parseHexUuid(String hex) {
         String h = hex.trim();
         return UUID.fromString(h.substring(0, 8) + "-" + h.substring(8, 12) + "-"

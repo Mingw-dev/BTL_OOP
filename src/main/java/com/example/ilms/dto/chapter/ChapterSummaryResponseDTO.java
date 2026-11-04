@@ -10,7 +10,6 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-// Dùng cho API danh sách chương của khóa học
 @Getter
 @Setter
 @NoArgsConstructor
@@ -24,6 +23,7 @@ public class ChapterSummaryResponseDTO {
     private Integer orderIndex;
     private Integer totalLessons;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @Schema(nullable = true, example = "null")
     private LocalDateTime deletedAt;
