@@ -36,6 +36,12 @@ public enum SuccessCode {
     GRADE_SUBMISSION_SUCCESS(HttpStatus.OK, "Chấm bài thành công"),
     BATCH_GRADE_SUBMISSIONS_SUCCESS(HttpStatus.OK, "Chấm bài theo batch thành công"),
     BATCH_GRADE_SUBMISSIONS_PARTIAL_SUCCESS(HttpStatus.MULTI_STATUS, "Đã xử lý batch, có bài nộp không chấm được"),
+    //Grading Module
+    CREATE_GRADING_SUCCESS(HttpStatus.CREATED, "Tạo kết quả chấm thành công"),
+    GET_GRADING_SUCCESS(HttpStatus.OK, "Lấy kết quả chấm thành công"),
+    UPDATE_GRADING_SUCCESS(HttpStatus.OK, "Cập nhật kết quả chấm thành công"),
+    BATCH_CREATE_GRADINGS_SUCCESS(HttpStatus.OK, "Tạo kết quả chấm theo batch thành công"),
+    BATCH_CREATE_GRADINGS_PARTIAL_SUCCESS(HttpStatus.MULTI_STATUS, "Đã xử lý batch, có kết quả chấm không tạo được"),
     // Class Module
     CLASS_CREATED(HttpStatus.CREATED, "Tạo lớp học thành công"),
     ENROLL_CLASS_SUCCESS(HttpStatus.OK, "Tham gia lớp học thành công"),
