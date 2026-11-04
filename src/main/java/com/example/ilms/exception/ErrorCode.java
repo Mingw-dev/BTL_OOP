@@ -56,6 +56,12 @@ public enum ErrorCode {
     SUBMISSION_CLASS_READ_ONLY(HttpStatus.CONFLICT, "Lớp đã lưu trữ hoặc liên kết môn học không còn ACTIVE"),
     SUBMISSION_DATA_INCONSISTENT(HttpStatus.CONFLICT, "Dữ liệu bài tập, bài nộp hoặc kết quả chấm không nhất quán"),
     SUBMISSION_WRITE_CONFLICT(HttpStatus.CONFLICT, "Không thể ghi kết quả do xung đột dữ liệu hoặc giao dịch"),
+    //Grading
+    GRADING_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy kết quả chấm"),
+    GRADING_ALREADY_EXISTS(HttpStatus.CONFLICT, "Bài nộp đã có kết quả chấm"),
+    GRADING_INVALID_REQUEST(HttpStatus.BAD_REQUEST, "Dữ liệu chấm điểm không hợp lệ"),
+    GRADING_DATA_INCONSISTENT(HttpStatus.CONFLICT, "Dữ liệu bài tập, bài thi, bài nộp hoặc kết quả chấm không nhất quán"),
+    GRADING_WRITE_CONFLICT(HttpStatus.CONFLICT, "Không thể ghi kết quả chấm do xung đột dữ liệu hoặc giao dịch"),
     // Course
     COURSE_NOT_FOUND(HttpStatus.NOT_FOUND, "Không tìm thấy môn học"),
     COURSE_ACCESS_DENIED(HttpStatus.FORBIDDEN, "Bạn không có quyền xem môn học của người dùng này"),
