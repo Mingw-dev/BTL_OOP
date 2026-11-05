@@ -32,8 +32,8 @@ public class ClassService {
     private final ModelMapper modelMapper;
 
     public ClassService(ClassRepository classRepository,
-                        ClassMemberRepository classMemberRepository,
-                        UserRepository userRepository, ModelMapper modelMapper){
+            ClassMemberRepository classMemberRepository,
+            UserRepository userRepository, ModelMapper modelMapper) {
 
         this.classMemberRepository = classMemberRepository;
         this.classRepository = classRepository;
@@ -42,8 +42,7 @@ public class ClassService {
     }
 
     @Transactional
-    public ClassResponseDTO createClass(ClassCreateRequestDTO request,User currentUser) {
-
+    public ClassResponseDTO createClass(ClassCreateRequestDTO request, User currentUser) {
 
         // Tạo thông tin lớp học
         ClassEntity newClass = modelMapper.map(request, ClassEntity.class);
@@ -52,7 +51,7 @@ public class ClassService {
         // Database nhận Entity và cấp phát ID
         newClass = classRepository.save(newClass);
 
-        //  Giáo viên của lớp
+        // Giáo viên của lớp
         ClassMember classMember = ClassMember.builder()
                 .user(currentUser)
                 .classEntity(newClass)
@@ -73,13 +72,17 @@ public class ClassService {
 
         return code;
     }
+
     @Transactional(readOnly = true)
-    public PageResponse<ClassResponseDTO> getClasses(String search, String visibility, int page, int size, User currentUser) {
-        // Khởi tạo đối tượng phân trang, sắp xếp theo thời gian (nếu Entity có trường createdAt hoặc startAt)
+    public PageResponse<ClassResponseDTO> getClasses(String search, String visibility, int page, int size,
+            User currentUser) {
+        // Khởi tạo đối tượng phân trang, sắp xếp theo thời gian (nếu Entity có trường
+        // createdAt hoặc startAt)
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
 
         // Gọi hàm HQL từ Repository để lọc dữ liệu
-        Page<ClassEntity> classPage = classRepository.findClassesWithFilter(search, visibility, currentUser.getId(), pageable);
+        Page<ClassEntity> classPage = classRepository.findClassesWithFilter(search, visibility, currentUser.getId(),
+                pageable);
 
         List<ClassResponseDTO> content = classPage.getContent().stream()
                 .map(entity -> {
@@ -100,6 +103,7 @@ public class ClassService {
                 .isLast(classPage.isLast())
                 .build();
     }
+
     @Transactional(readOnly = true)
     public ClassResponseDTO getClassById(UUID classId, User currentUser) {
         ClassEntity classEntity = classRepository.findById(classId)
@@ -122,11 +126,11 @@ public class ClassService {
 
         // Kiểm tra quyền: Chỉ giảng viên tạo lớp mới được thao tác
         if (!classEntity.getOwner().getId().equals(currentUser.getId())) {
-            // Thay bằng ErrorCode tương ứng trong file ErrorCode của bạn (VD: UNAUTHORIZED_ACCESS)
+
             throw new AppException(ErrorCode.CLASS_ACCESS_DENIED);
         }
 
-        // Đảm bảo ClassEntity của bạn có trường isClosed và hàm setClosed()
+        // Đảm bảo ClassEntity có trường isClosed và hàm setClosed()
         classEntity.setIsCodeActive(isClosed);
         classRepository.save(classEntity);
     }
