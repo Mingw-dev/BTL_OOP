@@ -93,6 +93,10 @@ public enum ErrorCode {
     INVAILD_LESSONSESSION(HttpStatus.BAD_REQUEST, "Ca học không hợp lệ"),
     SESSION_NOT_FOUND(HttpStatus.NOT_FOUND, "Ca học không tồn tại"),
     TEACHER_SCHEDULE_CONFLICT(HttpStatus.CONFLICT, "Giáo viên bị trùng lịch"),
+    INVALID_REQUESTS(HttpStatus.BAD_REQUEST, "Yêu cầu không hợp lệ"),
+    DUPLICATE_ATTENDANCE_STUDENT(HttpStatus.BAD_REQUEST, "Học sinh bị trùng trong danh sách điểm danh"),
+    ACCOUNT_NOT_ACTIVE(HttpStatus.BAD_REQUEST, "Tài khoản chưa được kích hoạt"),
+    CLASS_MEMBER_NOT_STUDENT(HttpStatus.BAD_REQUEST,"Thành viên lớp học không có vai trò là học sinh"),
 
     // Announcement
     ANNOUNCEMENT_NOT_FOUND(HttpStatus.NOT_FOUND, "Thông báo không tồn tại"),

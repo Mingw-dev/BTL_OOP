@@ -17,7 +17,6 @@ import java.util.UUID;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class UserCreateRequestDTO {
 
-
     @NotBlank(message = "Email không được để trống")
     @Email(message = "Email không đúng định dạng")
     String email;
@@ -34,7 +33,7 @@ public class UserCreateRequestDTO {
     @NotNull(message = "Tên đệm không được để trống")
     String middleName;
 
-    @NotNull
+    @NotNull(message = "Mã vai trò không được để trống")
     UUID roleId;
 
 }

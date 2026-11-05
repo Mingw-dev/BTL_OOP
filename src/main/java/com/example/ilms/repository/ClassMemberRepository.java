@@ -40,4 +40,5 @@ public interface ClassMemberRepository extends JpaRepository<ClassMember, UUID> 
             Pageable pageable
     );
     boolean existsByClassEntityIdAndUserId(UUID classId, UUID userId);
+    
 }

@@ -13,7 +13,7 @@ import java.util.UUID;
 
 public interface LessonSessionRepository extends JpaRepository<LessonSession, UUID> {
     // Lấy danh sách các buổi học của 1 lớp, sắp xếp theo thời gian tăng dần
-    List<LessonSession> findByClassEntityIdOrderByStartTimeAsc(UUID classId);
+    List<LessonSession> findByClassEntityIdOrderBySessionDateAscStartTimeAsc(UUID classId);
 
     // 1. Kiểm tra trùng phòng học trong khoảng thời gian từ startTime đến endTime
     @Query("""

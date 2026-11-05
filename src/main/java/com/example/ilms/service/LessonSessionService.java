@@ -12,7 +12,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import com.example.ilms.repository.RoomRepositoty;
+
 import com.example.ilms.type.AttendanceStatus;
 import java.util.*;
 import org.springframework.http.HttpStatus;
@@ -59,7 +59,7 @@ public class LessonSessionService {
     public List<LessonSessionResponseDTO> getClassSessions(UUID classId, User currentUser) {
         announcementAccessService.getActiveMember(classId, currentUser);
         return lessonSessionRepository
-                .findByClassEntityIdOrderByStartTimeAsc(classId)
+                .findByClassEntityIdOrderBySessionDateAscStartTimeAsc(classId)
                 .stream() //Stream là một luồng xử lý dữ liệu, cho phép thực hiện các thao tác như lọc, chuyển đổi, sắp xếp dữ liệu mà không cần tự viết vòng lặp for
                 .map(lessonSession -> LessonSessionResponseDTO.builder()
                         .classId(lessonSession.getClassEntity().getId())
@@ -89,38 +89,37 @@ public class LessonSessionService {
         announcementAccessService.requiredRoleMember(lessonSession.getClassEntity().getId(), currentUser);
 
         if(requestDTO == null || requestDTO.getAttendances() == null || requestDTO.getAttendances().size() == 0) {
-            throw new  ResponseStatusException(HttpStatus.BAD_REQUEST, "Danh sách điểm danh không được để trống");
+            throw new AppException(ErrorCode.INVALID_REQUESTS);
         }
+        // 2. Thu thập danh sách ID học sinh và kiểm tra trùng lặp ID trong payload
         Set<UUID> studentIds = new HashSet<>();
         for(BatchAttendanceRequestDTO.AttendanceItem item : requestDTO.getAttendances()) {
             if (item == null || item.getStudentId() == null || item.getStatus() == null) {
-                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Mỗi mục điểm danh học sinh cần phải có đủ studentId và status");
+                throw new AppException(ErrorCode.INVALID_REQUESTS);
             }
-            if (!studentIds.add(item.getStudentId())) {
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Trùng học sinh trong danh sách: " + item.getStudentId()
-                );
+            if (!studentIds.add(item.getStudentId())) { // phương thức add của Set sẽ trả về false nếu giá trị đã có
+                throw new AppException(ErrorCode.DUPLICATE_ATTENDANCE_STUDENT);
             }
             ClassMember member = classMemberRepository.findByClassEntity_IdAndUser_Id(lessonSession.getClassEntity().getId(), item.getStudentId())
-                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.BAD_REQUEST, "Học sinh không thuộc lớp học này"));
+                    .orElseThrow(() -> new AppException(ErrorCode.CLASS_MEMBER_NOT_FOUND));
 
-            if (!"ACTIVE".equals(member.getStatus())
-                    || !"STUDENT".equals(member.getRole())) {
+            if (!"ACTIVE".equals(member.getStatus())) {
+                throw new AppException(ErrorCode.ACCOUNT_NOT_ACTIVE);
+            }
 
-                throw new ResponseStatusException(
-                        HttpStatus.BAD_REQUEST,
-                        "Tài khoản chưa được kích hoạt trong lớp này"
-                                + item.getStudentId()
-                );
+            if (!"STUDENT".equals(member.getRole())) {
+                throw new AppException(ErrorCode.CLASS_MEMBER_NOT_STUDENT);
             }
         }
+
         Map<UUID, Attendance> existingAttendance = new HashMap<>();
+
         List<Attendance> attendanceList = attendanceReposity.findByLessonSession_Id(lessonSessionId);
         for (Attendance a :  attendanceList) {
             UUID studentId = a.getStudent().getId();
             existingAttendance.put(studentId, a);
         }
+
         List<Attendance> toSave = new ArrayList<>();
         for(BatchAttendanceRequestDTO.AttendanceItem item : requestDTO.getAttendances()) {
             Attendance attendance = existingAttendance.get(item.getStudentId());
@@ -156,7 +155,7 @@ public class LessonSessionService {
                         .sessionId(a.getLessonSession().getId())
                         .studentId(a.getStudent().getId())
                         .status(a.getStatus())
-                        .note(a.getNote())
+                        .note(a.getNote())  
                         .build()
                     )
                 .toList();
